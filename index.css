@@ -1,0 +1,13 @@
+.buttonTree .branches {
+    height: 0px;
+    overflow: hidden;
+    transition: height .5s;
+}
+
+.buttonTree .branches.open {
+    height: auto;
+}
+
+body {
+    background-color: aqua;
+}

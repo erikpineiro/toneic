@@ -1,0 +1,26 @@
+{
+    "id": 0,
+    "name": "Name",
+    "password": "password",
+    "points": 0,
+    "toneics": [
+        {
+            "week": 0,
+            "code": 0,
+            "points": 0,
+            "letters": [
+                {
+                    "position": [0,0],
+                    "letter": "a"
+                }
+            ],
+            "events": [
+                {
+                    "event": "",
+                    "data": null,
+                    "timeStamp": 0
+                }
+            ]
+        }
+    ]
+}

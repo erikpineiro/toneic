@@ -1,0 +1,22 @@
+{
+    "week": 0,
+    "podcast": "linkToPodcast",
+    "title": "title",
+    "guests": [],
+    "crosswords": {
+        "height": 0,
+        "width": 0,
+        "words": [
+            {
+                "origin": [0,0],
+                "direction": "v",
+                "word": "x",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": "text"
+                }
+            }
+        ]
+    }
+}

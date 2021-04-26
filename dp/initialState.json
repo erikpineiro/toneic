@@ -17,6 +17,7 @@
                         "word": "dolemite",
                         "description": {
                             "image": null,
+                            "podcastTime": 123,
                             "text": "I have two different PHP files that both write to the same file"
                         }
                     }
@@ -34,6 +35,7 @@
                 {
                     "week": 45,
                     "code": 234567,
+                    "points": 23,
                     "letters": [
                         {
                             "position": [0,0],
@@ -42,6 +44,19 @@
                         {
                             "position": [0,1],
                             "letter": "o"
+                        }
+                    ],
+                    "events": [
+                        {
+                            "event": "letter",
+                            "origin": [0,1],
+                            "result": "A",
+                            "timeStamp": 23234234234
+                        },
+                        {
+                            "event": "player:in",
+                            "timeStamp": 21312412444,
+                            "playerID": 0
                         }
                     ]
                 }

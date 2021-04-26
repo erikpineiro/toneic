@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, user-scalable=no">
+    <link rel="stylesheet" href="index.css">
     <title>Toneic</title>
 </head>
 <body>
@@ -13,6 +14,6 @@
     <footer></footer>
     
 
-    <script src="index.js"></script>
+    <script type="module" src="index_loggedin.js"></script>
 </body>
 </html>
