@@ -1,0 +1,77 @@
+:root {
+
+    --ft1: 'Open Sans';
+    --ft2: 'Open Sans Condensed';
+    --ft3: 'Rajdhani';
+
+    --ftToneic: var(--ft3);
+    --ftButton: var(--ft2);
+    --ftUser: var(--ft2);
+    --ftTeam: var(--ft2);
+    --ftView: var(--ft1);
+    --ftCross: var(--ft3);
+
+
+    --szLogoMini: 4vh;
+    --hHeaderBottom: 4.5vh;
+
+    --hMainButton: 6vh;
+    --bRMainButton: 5px;
+
+    --marginTopMainButtons: 2vh;
+
+
+    --cToneic: rgba(59,211,47,.5);
+    --cBackApp:  rgba(200,250,225,1);
+
+}
+
+
+
+body {
+    background-color: black;
+    margin: 0px;
+}
+main {
+    position: relative;
+    min-height: 100vh;
+}
+main > div {
+    z-index: 1;
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 100%;
+    background-color: var(--cBackApp);
+}
+
+#content > * {
+    padding: 1vh;
+}
+
+/* LOGO */
+.logo .image {
+    background-image: url(../images/logoToneic.png);
+    background-size: cover;
+}
+.logo .text {
+    font-family: var(--ftToneic);
+}
+
+/* DISAPPEARABLE */
+.disappearable.disappear {
+    animation: viewDisappear 1s forwards;
+}
+
+@keyframes viewDisappear {
+    0% {
+        opacity: 1
+    }
+    90% {
+        opacity: 0;
+    }
+    100% {
+        z-index: 0;
+    }
+}

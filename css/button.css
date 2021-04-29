@@ -1,0 +1,24 @@
+
+button {
+
+    --ftSizeMain: calc( .45 * var(--hMainButton));
+
+    position: relative;
+    background-color: var(--cToneic);
+    border-radius: var(--bRMainButton);
+    box-shadow: 0px 3px 3px black;
+    border: none;
+
+    font-family: var(--ft1);
+}
+
+button.active {
+    box-shadow: none;
+    top: 1px;
+}
+
+.wideButton {
+    width: 100%;
+    height: var(--hMainButton);
+    font-size: var(--ftSizeMain);
+}

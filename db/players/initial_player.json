@@ -1,6 +1,8 @@
 {
     "id": 0,
     "name": "Name",
+    "password": "Password",
+    "token": "Token",
     "points": 0,
     "playingCurrentToneicWith": null
 }

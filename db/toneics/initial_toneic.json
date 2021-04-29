@@ -17,6 +17,12 @@
                     "text": "text"
                 }
             }
+        ],
+        "multipliers": [
+            {
+                "origin": [0,0],
+                "factor": 2
+            }
         ]
     }
 }

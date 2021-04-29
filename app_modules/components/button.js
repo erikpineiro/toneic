@@ -3,9 +3,10 @@ export function create(data){
 
     console.log("button", data);
 
-    let {text, callback = null} = data;
+    let {text, callback = null, classes = null}  = data;
 
     let main = document.createElement("button");
+    classes && main.classList.add(classes.join(","));
 
     main.textContent = text;
     main.addEventListener("click", callback);
