@@ -2,54 +2,37 @@
 
 import { login } from "../app_modules/apiBridge.js";
 import * as Events from "../app_modules/events.js";
-import * as State from "../app_modules/state.js";
+import State from "../app_modules/state.js";
 import * as View from "../app_modules/views/views.js"
 import { Waiter } from "../app_modules/waiter.js";
 
 
 
-document.querySelector("main").innerHTML = `
-    <div id="content">
-        <div id="header"></div>
-        <div id="menu"></div>
-        <div id="views">
-            <div id="home" class="view disappearable"></div>
-            <div id="toneic" class="view disappearable">TONEIC</div>
-            <div id="archive" class="view disappearable">ARKIV</div>
-            <div id="league" class="view disappearable">LIGA</div>
-        </div>
-    </div>
-    <div id="init" class="disappearable">INIT PAGE</div>
-`;
-
-
-
-// Initial Event Listeners
-Events.addListener({
-    eventName: "event::leaveInit",
-    payload: null,
-    callback: leaveInit
+// Leaving INIT
+// Listen to "event::leaveInit"
+Events.subscribe({
+    event: "event::leaveInit",
+    listener: function (){
+        document.querySelector("#init").classList.add("disappear");
+    }
 });
-
-
-
-// Create a waiter to leave the logo page
+// Create a waiter to leave init
 new Waiter({
-    name: "leave_logo_page",
-    waitingFor: ["login_tried", "home_view_inited", "at_least_a_bit_of_logo"],
-    callback: () => { Events.dispatchEvent({ eventName: "event::leaveInit" }); }
+    event: "event::leaveInit",
+    waitingForThings: ["thing::login:tried", "thing::home:view:inited", "thing::a:bit:of:logo"],
 });
-setTimeout(() => { Waiter.hasHappened("at_least_a_bit_of_logo"); }, 1000);
+setTimeout(() => { Waiter.hasHappened("thing::a:bit:of:logo"); }, 1000);
 
 
 
-// Init next view. This is done while the logo is on top
+// Prepare some views. Done while INIT is on
 View.Home.init(document.querySelector("#home"));
 View.Header.init(document.querySelector("#header"));
+View.Toneic.init(document.querySelector("#toneic"));
 
 
-
-
+// TEST
+document.querySelector("#home").style.display = "none";
 
 // Async Load rest of the stuff
 
@@ -59,26 +42,26 @@ View.Header.init(document.querySelector("#header"));
 // Try login
 if (typeof initData !== "undefined" && initData.loggedIn) {
 
-    State.set(initData);
-    Waiter.hasHappened("login_tried");
+    State.local = initData;
+    Waiter.hasHappened("thing::login:tried");
     
 } else {
 
-    if (State.get().token) {
+    if (State.local.token) {
 
         login({
-            userName: State.get().userName,
-            token: State.get().token,
+            userName: State.local.userName,
+            token: State.local.token,
             callback: (response) => { 
                 console.log(response);
-                Waiter.hasHappened("login_tried");
+                Waiter.hasHappened("thing::login:tried");
             }
         });
 
     } else {
 
         console.log("No login credentials in the state");
-        Waiter.hasHappened("login_tried");
+        Waiter.hasHappened("thing::login:tried");
 
     }
 
@@ -86,12 +69,4 @@ if (typeof initData !== "undefined" && initData.loggedIn) {
 
 
 
-
-// Functions and callbacks
-function leaveInit() {
-
-    console.log("leave init");
-    document.querySelector("#init").classList.add("disappear");
-
-}
 

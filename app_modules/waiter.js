@@ -1,40 +1,39 @@
 import { myError } from "./error.js";
+import * as Events from "./events.js";
+
+// Waiter triggers an event when some things have happened
 
 const waiters = [];
 
 export class Waiter {
 
-    static hasHappened (what) {
+    static hasHappened (thing) {
 
-        console.log("has happened:", what);
+        console.log("has happened:", thing);
 
         for (let i = waiters.length - 1; i >= 0; i--) {
-
-            let index = waiters[i].waitingFor.indexOf(what);
+            let index = waiters[i].waitingForThings.indexOf(thing);
             if (index !== -1) {
-                waiters[i].waitingFor.splice(index, 1);
-                if (waiters[i].waitingFor.length === 0) {
-                    console.log("waiter", waiters[i].name, "done");
-                    waiters[i].callback();                    
+                waiters[i].waitingForThings.splice(index, 1);
+                if (waiters[i].waitingForThings.length === 0) {
+                    Events.publish({ event: waiters[i].event });
                 }
             }
-            
-            console.log(waiters[i]);
-
         }
     }
 
     constructor (data) {
 
-        let {name, waitingFor, callback} = data;
+        let {event, waitingForThings} = data;
 
-        if (!name || waitingFor.length === 0 || !callback) {
+        console.log(data);
+
+        if (!event || waitingForThings.length === 0) {
             myError.throw();
         }
 
-        this.name = name;
-        this.waitingFor = waitingFor;
-        this.callback = callback;
+        this.event = event;
+        this.waitingForThings = waitingForThings;
 
         waiters.push(this);
     }

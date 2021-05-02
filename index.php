@@ -44,7 +44,19 @@
 </head>
 <body>
 
-    <main></main>
+    <main>
+        <div id="content">
+            <div id="header"></div>
+            <div id="menu"></div>
+            <div id="views">
+                <div id="archive" class="view disappearable">ARKIV</div>
+                <div id="league" class="view disappearable">LIGA</div>
+                <div id="home" class="view disappearable"></div>
+                <div id="toneic" class="view disappearable">TONEIC</div>
+            </div>
+        </div>
+        <div id="init" class="disappearable">INIT PAGE</div>        
+    </main>
     
     <script>
         let initData = <?php echo json_encode($initData) ?>;

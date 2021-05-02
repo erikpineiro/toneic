@@ -53,15 +53,15 @@ export function init (home) {
     `;
 
 
-    // BUTTONS CONTENT
-    Events.addListener({
-        eventName: "event::userloggedIn",
-        payload: null,
-        callback: (data) => {
-            let { payload, dispatchData } = data;
-            let previousTeam = State.get().previousTeam;
+    // BUTTONS CONTENT 
+    Events.subscribe({
+        event: "event::user:login:success",
+        listener: (detail) => {
+            let previousTeam = "Bobinas";
+            // let previousTeam = State.local.previousTeam;
             if (previousTeam) {
                 home.querySelector("#previousTeam span").textContent = previousTeam;
+                home.querySelector("#previousTeam").style.display = "inline";
                 home.querySelector("#existingTeam #aTeam").style.display = "none";
                 home.querySelector("#existingTeam #anotherTeam").style.display = "inline";
             }
@@ -71,42 +71,53 @@ export function init (home) {
 
 
     // BUTTONS BEHAVIOUR
-
-    // Alone
-    Behaviour.clickable({
-        element: home.querySelector("#testButtonHome"),
-        callback: () => { console.log("testButtonHome"); }
-    });
-
-    // Main button tree
+    // Main buttons tree
     home.querySelectorAll(".mainTreeButton").forEach( button => Behaviour.mainTreeButton({button}) );
 
     // Alone
-    Behaviour.clickable({
-        element: home.querySelector("#alone"),
-        callback: () => { console.log("ensam"); }
+    home.querySelector("#alone").click({
+        callback: function(){
+            Events.publish({
+                event: "event::view",
+                detail: { view: "toneic" }
+            });
+         }
     });
 
     // Previous Team
-    Behaviour.clickable({
-        element: home.querySelector("#previousTeam"),
-        callback: () => { console.log("förra"); }
+    home.querySelector("#previousTeam").click({
+        callback: function(){ console.log("förra"); }
     });
 
     // Existing (A / Another) Team
-    Behaviour.clickable({
-        element: home.querySelector("#existingTeam"),
-        callback: () => { console.log("befintligt"); }
+    home.querySelector("#existingTeam").click({
+        callback: function(){ console.log("befintligt"); }
     });
 
     // Register Team
-    Behaviour.clickable({
-        element: home.querySelector("#registerTeam"),
-        callback: () => { console.log("registrera"); }
+    home.querySelector("#registerTeam").click({
+        callback: function(){ console.log("registrera"); }
     });
 
 
-    Waiter.hasHappened("home_view_inited");
+
+    // TEST BUTTON
+    home.querySelector("#testButtonHome").click({
+        callback: function(){
+            Events.publish({
+                event: "event::user:login:success",
+                detail: null
+            });            
+        }
+    });
+    home.querySelector("#previousTeam span").subscribe({
+        event: "event::user:login:success",
+        callback: function(){ console.log("yeah") }
+    });
+
+
+
+    Waiter.hasHappened("thing::home:view:inited");
 
     
 }

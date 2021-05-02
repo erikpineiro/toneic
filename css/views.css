@@ -5,6 +5,7 @@
 }
 #views .view {
     position: absolute;
+    padding: inherit;
     top: 0px;
     left: 0px;
     width: 100%;
