@@ -1,4 +1,6 @@
 import { myError } from "../error.js";
+import State from "../state.js";
+
 
 export class Crosswords {
     constructor (data) {
@@ -10,7 +12,13 @@ export class Crosswords {
 
         element.innerHTML = `
             <div class="cross"></div>
-            <div class="legend">Förklaring</div>
+            <div class="legend">
+                <div class="image">
+                    <img>
+                </div>
+                <div class="text"></div>
+                <div class="podcastTime"></div>
+            </div>
             <div class="keyboard"></div>
         `;
 
@@ -36,7 +44,6 @@ export class Crosswords {
 
             // Next cell in word is updating
             let nextCell = Word.active.nextCell(cellUpdating);
-            console.log(nextCell);
             if (nextCell !== null) {
                 nextCell.isUpdating();
             } else {
@@ -47,7 +54,25 @@ export class Crosswords {
     }
 
     showLegend (description) {
-        this.element.querySelector(".legend").textContent = description.text;
+
+        let legend = this.element.querySelector(".legend");
+        legend.querySelectorAll(".legend > *").forEach( e => e.classList.add("invisible") );
+
+        setTimeout(() => {
+
+            legend.querySelector(".legend .text").textContent = "";
+            legend.querySelector(".legend img").setAttribute("src", "");
+    
+            legend.querySelector(".legend .text").textContent = description.text;
+            if (description.image) {
+                let imageSrc = `../../../db/toneics/t${State.currentToneicID}/${description.image}`;
+                legend.querySelector(".legend img").setAttribute("src", imageSrc);    
+            }
+
+            legend.querySelectorAll(".legend > *").forEach( e => e.classList.remove("invisible") );
+                
+        }, 500);
+
     }
 }
 
@@ -68,7 +93,6 @@ class Cross {
 
         
         // Update the CSS
-        console.log(data);
         let element = data.main.getElement("cross");
         let wElement = parseInt(getComputedStyle(element).width);
         let hElement = ( wElement * height / width ) + "px";
@@ -105,9 +129,6 @@ class Cross {
                 cell.isEmpty();
             }
         });
-
-        console.log((Word.all));
-        console.log((Cell.all));        
 
     }
 }

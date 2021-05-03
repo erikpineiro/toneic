@@ -24,6 +24,7 @@ export default {
     },
 
     get currentToneicID () {
+        return "21v17";
         return toneicWeek();
     }
 };
