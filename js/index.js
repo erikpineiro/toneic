@@ -8,6 +8,13 @@ import * as View from "../app_modules/views/views.js"
 import { Waiter } from "../app_modules/waiter.js";
 
 
+// TEST
+// ApiDB.login({
+//     userName: "test",
+//     password: "test",
+// });
+
+
 // INIT COVER
 document.querySelector("#init").classList.add("on", "instant");
 document.querySelector("#init").classList.remove("instant");

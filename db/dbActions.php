@@ -19,12 +19,18 @@ function player_login($credentials){
         $userData["loggedIn"] = true;
         $_SESSION["userData"] = $userData;
 
-        return $userData;
+    } else {
+
+        $_SESSION["userData"] = false;
+        $userData["loggedIn"] = false;
 
     }
     
-    return null;
-
+    return [
+        "data" => $userData,
+        "message" => ""
+    ];
+    
 }
 function player_logout(){}
 function player_joinTeam(){}

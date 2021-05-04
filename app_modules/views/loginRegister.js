@@ -1,3 +1,4 @@
+import apiBridge from "../apiBridge.js";
 import { State } from "../state.js";
 import { SubPub } from "../subpub.js";
 
@@ -13,12 +14,12 @@ export function init (loginReg) {
                 <p class="feedback">feedback</p>
                 <input type="submit" value="Logga in">
                 <p id="linkForgor" class="link">Glömt lösenordet eller användarnamnet?</p>
-                <p id="linkRegister" class="link">Registrera dig i Toneic</p>
+                <p id="linkToRegister" class="link">Registrera dig i Toneic</p>
             </form>
         </div>
         <div id="registerForm">
             <form>
-                <p class="link">Redan registrerat? Logga in :-) istället</p>
+                <p id="linkToLogin" class="link">Redan registrerat? Logga in istället :-)</p>
                 <input id="inputRegisterUserName" type="text" placeholder="Välj ett användarnamn">
                 <p class="feedback">feedback</p>
                 <input id="inputRegisterPassword" type="text" placeholder="Välj ett lösenord (min 5 bokstäver)">
@@ -32,6 +33,7 @@ export function init (loginReg) {
     `;
 
 
+    // CLICKS
     loginReg.querySelector(".cancel").click({
         callback: () => {
             SubPub.publish({
@@ -41,6 +43,66 @@ export function init (loginReg) {
         }
     });
 
+    loginReg.querySelector("#loginForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        apiBridge.login({
+            userName: loginReg.querySelector("#inputLoginUserName").value,
+            password: loginReg.querySelector("#inputLoginPassword").value,
+            callback: (response) => {}
+        })        
+    });
+
+    loginReg.querySelector("#linkToRegister").click({
+        callback: () => {
+            SubPub.publish({
+                event: "event::loginRegister",
+                detail: { which: "register" }
+            });
+        }
+    });    
+
+    loginReg.querySelector("#linkToLogin").click({
+        callback: () => {
+            SubPub.publish({
+                event: "event::loginRegister",
+                detail: { which: "login" }
+            });
+        }
+    });    
+
+
+    // EVENT SUBSCRIPTIONS
+    loginReg.subscribe({
+        event: "event::loginRegister",
+        callback: (event) => {
+
+            let { which } = event.detail;
+            
+            let actionLogin = which === "login" ? "add" : "remove";
+            let actionRegister = which === "login" ? "remove" : "add";
+
+            loginReg.querySelector("#loginForm").classList[actionLogin]("open");            
+            loginReg.querySelector("#registerForm").classList[actionRegister]("open");            
+        }
+    });
+    
+    loginReg.subscribe({
+        event: "event::login:failed",
+        callback: () => {
+
+            let feedback = loginReg.querySelector("#loginForm .feedback");
+            feedback.textContent = "OBS: Vi kunde inte logga in dig";
+            feedback.classList.add("visible");
+
+        }
+    });
+
+    loginReg.subscribe({
+        event: "event::login:success",
+        callback: (response) => {
+            console.log("yeah!");
+        }
+    });
 
     loginReg.subscribe({
         event: "event::login:openForm",

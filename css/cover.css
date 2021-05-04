@@ -73,7 +73,11 @@
     text-decoration: underline;
 }
 #loginRegister p.feedback {
-    display: none;
+    opacity: 0;
+    color: lightsalmon;
+}
+#loginRegister p.feedback.visible {
+    opacity: 1;
 }
 #loginForm p.link {
     margin-top: 3vh;

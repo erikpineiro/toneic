@@ -1,8 +1,13 @@
 <?php
 
 
-require_once ("dbActions.php");
+// $r = [
+//     "data" => "dataYO",
+//     "message" => "messageYO"
+// ];
+// send(200, $r);
 
+require_once ("dbActions.php");
 
 switch ($_SERVER["REQUEST_METHOD"]) {
 
@@ -16,7 +21,6 @@ switch ($_SERVER["REQUEST_METHOD"]) {
 
 
     case "POST":
-        break;
         $contentType = $_SERVER["CONTENT_TYPE"];
         if ($contentType !== "application/json") {
             send(400, "Bad request (invalid content type)");
@@ -26,8 +30,13 @@ switch ($_SERVER["REQUEST_METHOD"]) {
         $input = json_decode(file_get_contents("php://input"), true);
         
         // All actions in dbActions.php
-        // All actions end with send and exit
-        $input["action"]($input["data"], $state);
+        // All actions return [
+            // data => ...
+            // message => ... (can be "")
+            // ]
+        $response = $input["action"]($input["payload"]);
+        send(200, $response);
+        break;
     
 
     default:
@@ -39,18 +48,13 @@ switch ($_SERVER["REQUEST_METHOD"]) {
 
 
 
-function send($code, $data, $message = "", $header = "Content-Type: text/plain"){
+function send($code, $response, $header = "Content-Type: text/plain"){
     http_response_code($code);
     header($header);
     echo json_encode([
-        "data" => $data,
-        "message" => $message
+        "data" => $response["data"],
+        "message" => $response["message"]
         ]);
-
-    global $lockFile;
-    if (file_exists($lockFile)) {
-        unlink($lockFile);
-    }
 
     exit();
 }
