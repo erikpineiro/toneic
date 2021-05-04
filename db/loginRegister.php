@@ -1,45 +1,17 @@
 <?php
 
 
-function checkCredentials($credentials){
+// function loginFormHtml($origin = ""){
 
-    include_once("./fileIO.php");
+//     return "
+//         <form>
+//             <input type='text'>
+//             <input type='password'>
+//             <input type='submit'>
+//         </form>
+//     ";
 
-    $userName = $credentials["userName"];
-    $password = $credentials["password"] ? $credentials["password"] : "";
-    $token = $credentials["token"] ? $credentials["token"] : "";
-
-    $fileName = "./dp/players/$userName";
-
-    if (file_exists($fileName)) {
-
-        $fileContents = getFileContents($fileName);
-
-        if ($password && $password === $fileContents["password"]) {
-            return true;
-        }
-
-        if ($token && $token === $fileContents["token"]) {
-            return true;
-        }
-
-    }
-
-    return false;
-}
-
-
-function loginFormHtml($origin = ""){
-
-    return "
-        <form>
-            <input type='text'>
-            <input type='password'>
-            <input type='submit'>
-        </form>
-    ";
-
-}
+// }
 
 
 ?>

@@ -29,6 +29,14 @@ function getFileContents($fileName, $extension = "json") {
 
 }
 
+function closeFile($fileName, $extension = "json") {
+
+    $lockFile = $fileName.".lock";
+    if (file_exists($lockFile)) {
+        unlink($lockFile);
+    }
+
+}
 
 
 ?>

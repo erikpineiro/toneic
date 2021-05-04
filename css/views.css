@@ -12,6 +12,26 @@
     height: 100%;
     z-index: 0;
     background-color: var(--cBackApp);
+
+    transition: opacity 1s;
+}
+.view.on {
+    opacity: 1;
+}
+.view.off {
+    opacity: 0;
+    animation: viewDisappear 1s forwards;
+}
+@keyframes viewDisappear {
+    0% {
+        /* opacity: 1 */
+    }
+    90% {
+        /* opacity: 0; */
+    }
+    100% {
+        z-index: 0;
+    }
 }
 
 
@@ -26,10 +46,54 @@
     margin: 1vh;
 }
 
-#mainButtonsHome {
+#home .wideButton {
+    display: block;
     width: 85%;
     margin: 0px auto;
 }
-#mainButtonsHome > *:not(:first-child) {
+#home .wideButton:not(:first-child) {
     margin-top: var(--marginTopMainButtons);
+}
+
+#teamButtons {
+    margin-top: var(--marginTopMainButtons);
+}
+
+
+
+
+/* MENU */
+#menu {
+
+    --hButtonMenu: 6vh;
+    --wBorderButtonMenu: 1px;
+    --mButtonMenu: 0px;
+    
+    height: 0px;
+    transition: height .5s;
+    overflow: hidden;
+
+}
+#menu .curtain {
+    display: flex;
+    flex-direction: column;
+    padding: 2vh;
+}
+#menu.open {
+    --hOpen: 1px; /* From JS */
+    height: var(--hOpen);
+    /* height: calc(var(--nVisibleButtons) * (var(--hButtonMenu) + 2 * var(--wBorderButtonMenu) + var(--mButtonMenu))); */
+}
+
+#menu button {
+
+    box-shadow: none;
+    border-radius: 0px;;
+
+    flex-basis: var(--hButtonMenu);
+    margin-top: var(--mButtonMenu);
+    border-top: var(--wBorderButtonMenu) solid rgba(0,0,0,.6);
+}
+#menu button:last-child {
+    border-bottom: var(--wBorderButtonMenu) solid rgba(0,0,0,.6);
 }

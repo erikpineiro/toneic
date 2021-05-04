@@ -1,6 +1,8 @@
+import ApiDB from "./apiBridge.js";
+import { SubPub } from "./subpub.js";
 
 
-export default {
+export const State = {
 
     get local() {
         let _localState = localStorage.getItem("localState");
@@ -17,8 +19,8 @@ export default {
     },
 
     set local (ls) {
-        let _localState = localStorage.getItem("localState") || {};
-        _localState = JSON.stringify({ ..._localState, ...ls });
+        let _localState = localStorage.getItem("localState") || "{}";
+        _localState = JSON.stringify({ ...JSON.parse(_localState), ...ls });
         localStorage.setItem("localState", _localState);
         return _localState;        
     },
@@ -26,8 +28,22 @@ export default {
     get currentToneicID () {
         return "21v17";
         return toneicWeek();
+    },
+
+
+    serverPhase: function (data) {
+        ApiDB.serverPhase(data);
     }
+
 };
+
+
+SubPub.subscribe({
+    event: "event::login:success",
+    listener: function (detail) {
+        State.local = detail;
+    }
+})
 
 
 function getDateInfo () {

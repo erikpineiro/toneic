@@ -1,6 +1,6 @@
 import { myError } from "../error.js";
-import State from "../state.js";
-import * as Events from "../events.js";
+import { State } from "../state.js";
+import { SubPub } from "../subpub.js";
 
 // export function showView (data) {
 
@@ -20,7 +20,8 @@ import * as Events from "../events.js";
 
 // }
 
-Events.subscribe({
+console.log(SubPub);
+SubPub.subscribe({
     event: "event::view",
     listener: function(detail){
         let { view } = detail;
@@ -35,10 +36,32 @@ Events.subscribe({
     
         element.style.zIndex = 1; // put it on top of all others
     
-        currentElement.classList.add("disappear");        
+        currentElement.classList.add("off");        
     }
 });
+SubPub.subscribe({
+    event: "event::cover:show",
+    listener: function (detail) {
+        let { cover } = detail;
+        let element = document.querySelector(`#${cover}`);
+        element.classList.remove("off");
+        element.classList.add("on");
+    }
+});
+SubPub.subscribe({
+    event: "event::cover:hide",
+    listener: function (detail) {
+        let { cover } = detail;
+        let element = document.querySelector(`#${cover}`);    
+        element.classList.add("off");
+        element.addEventListener("transitionend", () => { element.classList.remove("on"); });
+        
+    }
+});
+
 
 export * as Home from "./home.js";
 export * as Toneic from "./toneic.js";
 export * as Header from "./header.js";
+export * as Menu from "./menu.js";
+export * as LoginRegister from "./loginRegister.js";

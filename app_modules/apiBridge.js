@@ -2,38 +2,70 @@
 const API_URL = "./db/api.php";
 const HEADERS = { "Content-Type": "text/plain" };   // I use text in development to see errors in PHP
                                                     // For production change headers to JSON.
-const SHOW_RESPONSE = true;
+const SHOW_RAW_RESPONSE = true;
+const SHOW_OBJECT_RESPONSE = !SHOW_RAW_RESPONSE;
 
 
-export function login(data){
+export default {
 
-    let {userName = null, token = null, password = null, callback = null}  = data;
-    let requestKind = "request::invalid";
+    login: function (data) {
 
-    if (!userName) {
-        return newResponse({
+        let {userName = null, token = null, password = null, callback = null}  = data;
+        let requestKind = "request::invalid";
+    
+        if (!userName) {
+            return _newResponse({
+                requestKind,
+                message: "No username"
+            });
+        }
+        if (!password && !token) {
+            return _newResponse({
+                requestKind,
+                message: "No password credentials"
+            });
+        }
+    
+        requestKind = "request::login";
+        _dbFetch({
             requestKind,
-            message: "No username"
+            method: "POST",
+            body: JSON.stringify({ userName, token, password }),
+            url: API_URL,
+            callback,
         });
-    }
-    if (!password && !token) {
-        return newResponse({
-            requestKind,
-            message: "No password credentials"
-        });
-    }
+    
+    },
 
-    prepareFetch({
-        method: "POST",
-        body: JSON.stringify({ userName, token, password }),
-        url: API_URL,
-        callback,
+    serverPhase: function (data) {
+
+        let { callback } = data;
+
+        _dbFetch({
+            requestKind: "request::serverPhase",
+            method: "GET",
+            vars: "?serverPhase=true",
+            url: API_URL,
+            callback,
+        });     
+
+    }
+}
+
+function _get (data) {
+
+    let { url, vars = "", callback } = data;
+    let headers = { ...HEADERS };
+    let request = new Request(url + vars, {
+        method: "GET",
+        headers
     });
+
+    _fetch({ ...data, request, headers });
 
 }
 
-
-function post(data){
+function _post (data) {
 
     let {body, url, callback} = data;
     let headers = { ...HEADERS };
@@ -43,15 +75,15 @@ function post(data){
         body
     });
 
-    doFetch({ request, callback, headers });
+    _fetch({ request, callback, headers });
 
 }
 
 
 
-function doFetch (data) {
+function _fetch (data) {
 
-    let { request, callback, headers } = data;
+    let { request, callback, headers, requestKind } = data;
 
     let middle = headers["Content-Type"] === "text/plain" ? "text" : "json";
 
@@ -59,33 +91,39 @@ function doFetch (data) {
     .then( r => r[middle]() )
     .then( payload => {
 
+        if (SHOW_RAW_RESPONSE) {
+            console.log(payload);
+        }
+
         if (middle === "text") {
             payload = JSON.parse(payload);
         }
 
-        if (SHOW_RESPONSE) {
+        if (SHOW_OBJECT_RESPONSE) {
             console.log(payload);
         }
 
-        callback(newResponse({ payload }));
+        callback(_newResponse({ requestKind, payload }));
 
     } )
     .catch(e => {
         console.log(e);
+        callback(_newResponse({ success: false, message: "DB Error", requestKind }));
     });
 
 
 }
-function prepareFetch (data) {
+function _dbFetch (data) {
 
-    let {method, body, url, callback} = data;
+    let {method, callback} = data;
 
     switch (method) {
 
         case "POST":
-            post(data);
+            _post(data);
             break;
         case "GET":
+            _get(data);
             break;
         case "PUT":
             break;
@@ -93,7 +131,7 @@ function prepareFetch (data) {
             break;
         default:
 
-            callback(newResponse({
+            callback(_newResponse({
                 requestKind: "request::invalid",
                 message: `Invalid HTTP method (${method})`
             }));
@@ -105,7 +143,7 @@ function prepareFetch (data) {
 
 
 
-function newResponse(response){
+function _newResponse(response){
 
     response = { 
                 success: true,
@@ -121,12 +159,14 @@ function newResponse(response){
             response = { ...response, success: false };
             break;
 
+        case "request::serverPhase":
         case "request::login":
         case "request::register":
             break;
 
         default:
-            response = { ...response, success: false, message: `Unknown requestKind (${requestKind})` };
+            let rq = response.requestKind || "no requestKind"
+            response = { ...response, success: false, message: `Unknown requestKind (${rq})` };
             break;
 
     }

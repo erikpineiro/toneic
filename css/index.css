@@ -22,8 +22,11 @@
 
     --marginTopMainButtons: 2vh;
 
+    --zIndexCover: 10;
+
 
     --cToneic: rgba(59,211,47,.5);
+    --cToneicSolid: rgba(56,120,53);
     --cBackApp:  rgba(200,250,225,1);
 
 }
@@ -53,12 +56,6 @@ main > div {
     flex-direction: column;
     min-height: calc(100% - 2 * var(--pdContent));
 }
-#init {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: calc(100% - 2 * var(--pdContent));
-}
 
 
 
@@ -69,21 +66,4 @@ main > div {
 }
 .logo .text {
     font-family: var(--ftToneic);
-}
-
-/* DISAPPEARABLE */
-.disappearable.disappear {
-    animation: viewDisappear 1s forwards;
-}
-
-@keyframes viewDisappear {
-    0% {
-        opacity: 1
-    }
-    90% {
-        opacity: 0;
-    }
-    100% {
-        z-index: 0;
-    }
 }

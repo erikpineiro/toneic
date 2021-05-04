@@ -1,123 +1,133 @@
 
 import * as Behaviour from "../behaviour.js";
 import * as Error from "../error.js";
-import * as Events from "../events.js";
-import * as State from "../state.js"
+import { State } from "../state.js";
+import { SubPub } from "../subpub.js";
 import { Waiter } from "../waiter.js";
 
-export function init (home) {
-
-    home.style.zIndex = 2; // Because it's the first one to be seen
-
-    home.innerHTML = `
-
-        <div id="hero">
-            <p>Detta är Toneic.</p>
-            <p>Varje fredag kl19 släpper vi en utmaning.</p>
-            <p>
-                Fram till kl21 på fredagen kan du tävla,
-                <br>
-                på egen hand eller i lag
-            </p>
-            <p>
-                ...eller så löser du utmaningen i din egen takt.
-            </p>        
-        </div>
-
-        <div id="mainButtonsHome">
-
-            <div id="veckansTree" class="buttonTree treeRoot">
-                <button class="mainTreeButton">Till veckans Toneic</button>
-                <div class="branches">
-                    <button id="alone">På egen hand</button>
-                    <div id="lagTree" class="buttonTree">
-                        <button class="mainTreeButton">Tillsammans i ett lag</button>
-                        <div class="branches">
-                            <button id="previousTeam" style="display:none;">Med laget <span></span></button>
-                            <button id="existingTeam">
-                                <span id="aTeam">Med ett redan registrerat lag</span>
-                                <span id="anotherTeam" style="display:none;">Med ett annat registrerat lag</span>
-                            </button>
-                            <button id="registerTeam">Registrera ett nytt lag</button>
-                        </div>
-                    </div>
-                </div> 
-            </div>
-
-            <button id="testButtonHome" class="wideButton">TEST</button>
-
-            <button id="archive" class="wideButton">Arkiv</button>
-            <button id="league" class="wideButton">Ligan</button>
-
-        </div>
-    `;
-
-
-    // BUTTONS CONTENT 
-    Events.subscribe({
-        event: "event::user:login:success",
-        listener: (detail) => {
-            let previousTeam = "Bobinas";
-            // let previousTeam = State.local.previousTeam;
-            if (previousTeam) {
-                home.querySelector("#previousTeam span").textContent = previousTeam;
-                home.querySelector("#previousTeam").style.display = "inline";
-                home.querySelector("#existingTeam #aTeam").style.display = "none";
-                home.querySelector("#existingTeam #anotherTeam").style.display = "inline";
-            }
-        }
+function getResults () {
+    let button = document.createElement("button");
+    button.classList.add("wideButton");
+    button.textContent = "Ligorna";
+    
+    button.click({
+        callback: () => { console.log("ligorna"); }
     });
 
+    return button;
+}
+function getArchive () {
+    let button = document.createElement("button");
+    button.classList.add("wideButton");
+    button.textContent = "Tidigare Toneics";
+    
+    button.click({
+        callback: () => { console.log("tidigare"); }
+    });
 
+    return button;
+}
+function getHero () {
+    let div = document.createElement("div");
+    div.id = "hero";
 
-    // BUTTONS BEHAVIOUR
-    // Main buttons tree
-    home.querySelectorAll(".mainTreeButton").forEach( button => Behaviour.mainTreeButton({button}) );
+    div.innerHTML = `
+        <p>Detta är Toneic.</p>
+        <p>Varje fredag kl19 släpper vi en utmaning.</p>
+        <p>
+            Fram till söndagen kl 23:59 kan du tävla,
+            <br>
+            på egen hand eller i lag
+        </p>
+        <p>
+            ...eller så löser du utmaningen i din egen takt.
+        </p>          
+    `;
 
-    // Alone
-    home.querySelector("#alone").click({
+    return div;
+}
+function getAlone () {
+    let button = document.createElement("button");
+    button.classList.add("wideButton");
+    button.textContent = "På egen hand";
+    
+    button.click({
         callback: function(){
-            Events.publish({
+            SubPub.publish({
                 event: "event::view",
                 detail: { view: "toneic" }
             });
          }
     });
 
-    // Previous Team
-    home.querySelector("#previousTeam").click({
-        callback: function(){ console.log("förra"); }
-    });
+    return button;
+}
+function getTeams () {
 
-    // Existing (A / Another) Team
-    home.querySelector("#existingTeam").click({
-        callback: function(){ console.log("befintligt"); }
-    });
+    let div = document.createElement("div");
+    div.id = "teamButtons";
 
-    // Register Team
-    home.querySelector("#registerTeam").click({
-        callback: function(){ console.log("registrera"); }
-    });
+    div.innerHTML = `
+        <button class="wideButton" id="previousTeam" style="display:none;">Med <span>senaste laget</span></button>
+        <button class="wideButton" id="existingTeam">Med ett befintligt lag</span></button>
+        <button class="wideButton" id="newTeam">Registrera ett nytt lag</span></button>
+    `;
+    
+    SubPub.subscribe({
+        event: "event::user:login:success",
+        listener: (detail) => {
 
+            let { previousTeam } = detail;
 
-
-    // TEST BUTTON
-    home.querySelector("#testButtonHome").click({
-        callback: function(){
-            Events.publish({
-                event: "event::user:login:success",
-                detail: null
-            });            
+            if (previousTeam) {
+                home.querySelector("#previousTeam span").textContent = previousTeam;
+                home.querySelector("#previousTeam").style.display = "block";
+                home.querySelector("#existingTeam").textContent = "Med ett annat befintligt lag";
+            }
         }
     });
-    home.querySelector("#previousTeam span").subscribe({
-        event: "event::user:login:success",
-        callback: function(){ console.log("yeah") }
-    });
 
+
+    return div;
+}
+
+export function init (home) {
+
+    home.style.zIndex = 2; // Because it's the first one to be seen
+
+    let { phase } = State.local.serverPhase;
+
+    home.append(getHero());
+
+    switch (phase) {
+        case "phase::Relax":
+            home.append(getArchive());
+            home.append(getResults());
+            break;
+        case "phase::Ready":
+            // homeReady({home, timeLeft});
+            break;
+        case "phase::Toneic":
+            home.append(getAlone());
+            home.append(getTeams());
+            break;
+        default:
+            console.log(State.local.serverPhase);
+            Error.myError.throw();
+            break;
+    }     
+
+    
+    // Event subscriptions
+    home.subscribe({
+        event: "event::newServerPhase",
+        callback: function(e) {
+            let { phase, timeLeft } = e.detail;
+            console.log("home - new Server Phase", phase);
+        }
+    });
 
 
     Waiter.hasHappened("thing::home:view:inited");
 
-    
 }

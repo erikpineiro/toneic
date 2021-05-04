@@ -1,61 +1,40 @@
 <?php
 
 
-// Requires
 require_once ("dbActions.php");
-require ("spells.php");
-
-// Files
-$stateFile = "state.json";
-$lockFile = "state.lock";
 
 
-// state.json exists?
-if (!file_exists($stateFile)) {
-    $state = [];
-    file_put_contents($stateFile, json_encode($state));
-}
+switch ($_SERVER["REQUEST_METHOD"]) {
 
-// Go ahead or wait?
-$state = getState();
-if ($state === null) {
-    send(200, null, "NO STATE FILE");
-}
+    case "GET":
 
-
-$method = $_SERVER["REQUEST_METHOD"];
-if ($method === "GET") {
-
-    if (isset($_GET["initPlayer"])) {
-        send(200, $SPELLS);
-    }
-
-
-    $team = [];
-    if (isset($GET_["team"])) {
-        $team = $state["teams"][$GET_["team"]];
-    }
-
-    send(200, [
-        "toniec" => $state["toneic"],
-        "team" => $team,
-    ]);
-
-} else if ($method === "POST") {
-    $contentType = $_SERVER["CONTENT_TYPE"];
-    // if ($contentType !== "application/json") {
-    //     send(400, "Bad request (invalid content type)");
-    // }
+        if (isset($_GET["serverPhase"])) {
+            send(200, serverPhase());
+        }
     
-    // GET SENT INFO
-    $input = json_decode(file_get_contents("php://input"), true);
+        break;
+
+
+    case "POST":
+        break;
+        $contentType = $_SERVER["CONTENT_TYPE"];
+        if ($contentType !== "application/json") {
+            send(400, "Bad request (invalid content type)");
+        }
+        
+        // GET SENT INFO
+        $input = json_decode(file_get_contents("php://input"), true);
+        
+        // All actions in dbActions.php
+        // All actions end with send and exit
+        $input["action"]($input["data"], $state);
     
-    // All actions in dbActions.php
-    // All actions end with send and exit
-    $input["action"]($input["data"], $state);
+
+    default:
+        send(405, "Method not allowed");
+        break;
 }
 
-send(405, "Method not allowed");
 
 
 

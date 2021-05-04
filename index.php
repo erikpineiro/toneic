@@ -1,20 +1,35 @@
 <?php
 
+    /*
+        initData = {
+            loggedIn,
+            userData: { userName, token, latestTeam },
+            serverPhase: { phase, timeLeft }
+        }
+    */
+    require("./php/auxiliar.php");
+    $initData = [
+        "userData" => null,
+        "loggedIn" => false,
+        "serverPhase" => serverPhase()
+    ];
+
     if (isset($_SESSION["loggedIn"]) && $_SESSION["loggedIn"] === true) {
 
-        $initData = [
-            "userName" => $_SESSION["userName"],
-            "token" => $_SESSION["token"],
-            "loggedIn" => true
-        ];
+        $initData["userData"] = $_SESSION["userData"];
+        $initData["loggedIn"] = true;
+
+        // $initData["userName"] = $_SESSION["userName"];
+        // $initData["token"] = $_SESSION["token"];
+
+        // $initData = [
+        //     "userName" => $_SESSION["userName"],
+        //     "token" => $_SESSION["token"],
+        //     "loggedIn" => true
+        // ];
     
-    } else {
-
-        $initData = [
-            "loggedIn" => false
-        ];
-
     }
+
 
 ?>
 
@@ -49,20 +64,21 @@
             <div id="header"></div>
             <div id="menu"></div>
             <div id="views">
-                <div id="archive" class="view disappearable">ARKIV</div>
-                <div id="league" class="view disappearable">LIGA</div>
+                <div id="archive" class="view disappearable"></div>
+                <div id="league" class="view disappearable"></div>
                 <div id="home" class="view disappearable"></div>
-                <div id="toneic" class="view disappearable">TONEIC</div>
+                <div id="toneic" class="view disappearable"></div>
             </div>
         </div>
-        <div id="init" class="disappearable">INIT PAGE</div>        
+        <div id="loginRegister" class="disappearable cover off"></div>        
+        <div id="init" class="disappearable cover">INIT PAGE</div>        
     </main>
     
     <script>
         let initData = <?php echo json_encode($initData) ?>;
     </script>    
 
-    <script type="module" src="./js/init.js"></script>
+    <script type="module" src="./js/index.js"></script>
 
 </body>
 </html>

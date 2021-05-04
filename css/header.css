@@ -29,22 +29,30 @@
 }
 
 
-/* TOP: HAMBURGER */
+/* HAMBURGER */
 #header .hamburger {
-    flex-basis: calc( 1.2 * var(--hHeaderBottom) );
+    flex-basis: var(--szLogoMini);
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: repeat(3, 1fr);
     gap: 2px;
 
     margin-left: 2vh;
+
+    transition: height .5s, transform .5s, flex-basis .5s;
 }
 #header .hamburger > div {
     border-radius: 3px;
     background-color: var(--cToneic);
 }
+#header .hamburger.open {
+    transform: rotate(-90deg);
+}
 
-/* TOP: USER */
+
+
+
+/* USER */
 #header .user {
     font-family: var(--ft2);
     flex-grow: 1;
