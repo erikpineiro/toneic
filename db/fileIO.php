@@ -1,40 +1,40 @@
 <?php
 
-function getFileContents($fileName, $extension = "json") {
+function getFileContents($fileName) {
 
-    $lockFile = $fileName.".lock";
-    $realFile = $fileName.".".$extension;
+    $pathParts = pathInfo($fileName);
+    $noExtensionName = $pathParts["dirname"]."/".$pathParts["filename"];
+    $lockFile = $noExtensionName.".lock";
+    $extension = $pathParts["extension"];
 
     if (file_exists($lockFile)) {
         usleep(500000); // 500 ms = .5s
-        return getFileContents($fileName, $extension);
+        return getFileContents($fileName);
     }
 
     file_put_contents($lockFile, "locked"); // Creates the file
 
     $content = null;
 
-    if (file_exists($realFile)) {
-
-        $content = file_get_contents($realFile);
-        
+    if (file_exists($fileName)) {
+        $content = file_get_contents($fileName);    
         if ($extension === "json") {
             $content = json_decode($content, true);
         }
-
     }
 
     return $content;
-
 }
 
-function closeFile($fileName, $extension = "json") {
+function freeFile($fileName) {
 
-    $lockFile = $fileName.".lock";
+    $pathParts = pathInfo($fileName);
+    $noExtensionName = $pathParts["dirname"]."/".$pathParts["filename"];
+    $lockFile = $noExtensionName.".lock";
+
     if (file_exists($lockFile)) {
         unlink($lockFile);
     }
-
 }
 
 

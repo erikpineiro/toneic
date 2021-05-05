@@ -40,10 +40,18 @@ export const State = {
 
 SubPub.subscribe({
     event: "event::login:success",
-    listener: function (detail) {
-        State.local = detail;
+    listener: function (response) {
+        State.local = response.payload.data;
     }
-})
+});
+
+// SubPub.subscribe({
+//     event: "event::register:success",
+//     listener: function (response) {
+//         State.local = response.payload.data;
+//     }
+// });
+
 
 
 function getDateInfo () {

@@ -20,7 +20,25 @@ import { SubPub } from "../subpub.js";
 
 // }
 
-console.log(SubPub);
+export function showCover (data) {
+    let { cover } = data;
+    let element = document.querySelector(`#${cover}`);
+    element.classList.remove("off");
+    element.classList.add("on");
+}
+
+export function hideCover (data) {
+    let { cover } = data;
+    let element = document.querySelector(`#${cover}`);    
+    element.classList.add("off");
+
+    let transitionTime = parseInt(getComputedStyle(element).getPropertyValue("--transitionTime"));
+    setTimeout(() => {
+        element.classList.remove("on");
+    }, (transitionTime + 4) * 1000);
+
+}
+
 SubPub.subscribe({
     event: "event::view",
     listener: function(detail){
@@ -65,3 +83,4 @@ export * as Toneic from "./toneic.js";
 export * as Header from "./header.js";
 export * as Menu from "./menu.js";
 export * as LoginRegister from "./loginRegister.js";
+export * as UserInfo from "./userInfo.js";

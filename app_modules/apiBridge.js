@@ -1,3 +1,4 @@
+import { State } from "./state.js";
 import { SubPub } from "./subpub.js";
 
 const API_URL = "./db/api.php";
@@ -13,23 +14,19 @@ const SHOW_OBJECT_RESPONSE = !SHOW_RAW_RESPONSE;
 
 export default {
 
-
     login: function (data) {
-
         let {userName = null, token = null, password = null, callback = null}  = data;
+        userName = userName || State.local.userName;
+        token = token || State.local.token;
 
+        console.log("Login Started", userName, token, password);
 
         // Pre-Chekcs
         let message = "";
-        if (!userName) {
-            message = "No username";
-        }
-        if (!password && !token) {
-            message = "No password credentials";
-        }
+        if (!userName) { message = "No username"; }
+        if (!password && !token) { message = "No password credentials"; }
 
         if (message) {
-
             SubPub.publish({
                 event: "event::login:failed",
                 detail: _newResponse({
@@ -37,36 +34,84 @@ export default {
                     message
                 })
             });
-
         } else {
-
             _dbFetch({
                 requestKind: "request::login",
                 method: "POST",
                 url: API_URL,
                 body: JSON.stringify({ action: "player_login", payload: {userName, token, password} }),
                 callback: (response) => {
-
-                    console.log(response);
-
                     let event = (response.success && response.payload.data.loggedIn) ? "event::login:success" : "event::login:failed";
                     SubPub.publish({
                         event,
                         detail: response
                     });
-
                     callback && callback(response);
-
                 }
             });
-    
         }
     },
 
+    logout: function () {
+        let userName = State.local.userName;
+        if (userName) {
+            State.local = { token: "" };
+            console.log(State.local);
+            SubPub.publish({
+                event: "event::logout:success"
+            })
+        }
+    },
+
+    register: function (data) {
+        let {userName = null, email = null, password = null, callback = null}  = data;
+       
+        // Pre-Chekcs
+        let message = "";
+        if (!userName) { message = "no_username"; }
+        if (!password) { message = "no_password"; }
+        if (!email) { message = "no_email"; }
+
+        if (message) {
+            SubPub.publish({
+                event: "event::register:failed",
+                detail: _newResponse({
+                    requestKind:"request::invalid",
+                    message
+                })
+            });
+        } else {
+            _dbFetch({
+                requestKind: "request::register",
+                method: "POST",
+                url: API_URL,
+                body: JSON.stringify({ action: "player_register", payload: {userName, email, password} }),
+                callback: (response) => {
+
+                    if (!response.success) {
+
+                        SubPub.publish({
+                            event: "event::register:failed",
+                            detail: response
+                        });
+
+                    } else {
+        
+                        let event = response.payload.data.registered ? "event::register:success" : "event::register:failed";
+                        SubPub.publish({
+                            event,
+                            detail: response
+                        });
+                    }
+                
+                    callback && callback(response);
+                }
+            });
+        }        
+    },
+
     serverPhase: function (data) {
-
         let { callback } = data;
-
         _dbFetch({
             requestKind: "request::serverPhase",
             method: "GET",
@@ -161,14 +206,14 @@ function _fetch (data) {
     } )
     .catch(e => {
         console.log(e);
-        callback(_newResponse({ success: false, message: "DB Error", requestKind }));
+        callback(_newResponse({ success: false, message: "network_error", requestKind }));
     });
 }
 function _newResponse(response){
 
     response = { 
                 success: true,
-                message: "Request sent, Response received",
+                message: "sent_received",
                 payload: null,
                 ...response,
             };

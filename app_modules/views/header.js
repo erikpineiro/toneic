@@ -43,15 +43,35 @@ export function init(header) {
             SubPub.publish({ event });
         }
     });
-    hamburgerHtml.subscribe({
+
+
+
+    // SUBCRIPTIONS
+    SubPub.subscribe({
+        event: "event::login:success",
+        listener: (response) => {
+            let userName = response.payload.data.userName;
+            userHtml.textContent = userName;
+        }
+    });
+
+    SubPub.subscribe({
+        event: "event::logout:success",
+        listener: (response) => {
+            userHtml.textContent = "Ej inloggad";
+        }
+    });
+
+    SubPub.subscribe({
         event: "event::menu:open",
-        callback: () => {
+        listener: () => {
             hamburgerHtml.classList.add("open");
         }
     });
-    hamburgerHtml.subscribe({
+
+    SubPub.subscribe({
         event: "event::menu:close",
-        callback: () => {
+        listener: () => {
             hamburgerHtml.classList.remove("open");
         }
     });

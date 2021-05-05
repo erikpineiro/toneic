@@ -64,14 +64,15 @@
             <div id="header"></div>
             <div id="menu"></div>
             <div id="views">
-                <div id="archive" class="view disappearable"></div>
-                <div id="league" class="view disappearable"></div>
-                <div id="home" class="view disappearable"></div>
-                <div id="toneic" class="view disappearable"></div>
+                <div id="archive" class="view"></div>
+                <div id="league" class="view"></div>
+                <div id="home" class="view"></div>
+                <div id="toneic" class="view"></div>
             </div>
         </div>
-        <div id="loginRegister" class="disappearable cover off"></div>        
-        <div id="init" class="disappearable cover">INIT PAGE</div>        
+        <div id="userInfo" class="cover invisible"></div>        
+        <div id="loginRegister" class="cover off"></div>        
+        <div id="init" class="cover">INIT PAGE</div>        
     </main>
     
     <script>

@@ -58,6 +58,8 @@ function randomString($length = 10) {
 function randomUserName(){
     return "_u!random_".randomString(12);
 }
-
+function randomToken () {
+    return randomString(13);
+}
 
 ?>

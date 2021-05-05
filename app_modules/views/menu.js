@@ -1,3 +1,4 @@
+import apiBridge from "../apiBridge.js";
 import { State } from "../state.js";
 import { SubPub } from "../subpub.js";
 
@@ -17,9 +18,9 @@ export function init (menu) {
     `;
 
     if (State.local.loggedIn) {
-        menu.querySelector("#menuLogin").style.display = "none";
+        menu.querySelector("#menuLogin").classList.add("invisible");
     } else {
-        menu.querySelector("#menuLogout").style.display = "none";
+        menu.querySelector("#menuLogout").classList.add("invisible");
     }
 
     switch (State.local.serverPhase.phase) {
@@ -30,6 +31,8 @@ export function init (menu) {
 
     }
 
+
+    // SUBSCRIPTIONS
     menu.subscribe({
         event: "event::menu:open",
         callback: function (detail) {
@@ -47,8 +50,26 @@ export function init (menu) {
         }
     });
 
+    SubPub.subscribe({
+        event: "event::logout:success",
+        listener: (response) => {
+            menu.querySelector("#menuLogout").classList.add("invisible");
+            menu.querySelector("#menuLogin").classList.remove("invisible");
+        }
+    });
 
-    // Button actions
+    SubPub.subscribe({
+        event: "event::login:success",
+        listener: (response) => {
+            menu.querySelector("#menuLogout").classList.remove("invisible");
+            menu.querySelector("#menuLogin").classList.add("invisible");
+        }
+    });
+
+
+
+
+    // BUTTON ACTIONS
     menu.querySelectorAll("button").forEach( b => {
         b.click({
             callback: () => {
@@ -59,8 +80,7 @@ export function init (menu) {
                 }, 100);
             }
         })
-    })
-
+    });
 
     menu.querySelector("#menuLogin").click({
         callback: () => {
@@ -68,6 +88,13 @@ export function init (menu) {
                 event: "event::login:openForm"
             });
         }
-    })
+    });
+
+    menu.querySelector("#menuLogout").click({
+        callback: () => {
+            apiBridge.logout();
+        }
+    });
+
 
 }

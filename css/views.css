@@ -97,3 +97,6 @@
 #menu button:last-child {
     border-bottom: var(--wBorderButtonMenu) solid rgba(0,0,0,.6);
 }
+#menu button.invisible {
+    display: none;
+}

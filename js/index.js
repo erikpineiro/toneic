@@ -9,10 +9,59 @@ import { Waiter } from "../app_modules/waiter.js";
 
 
 // TEST
+
+// Login
 // ApiDB.login({
 //     userName: "test",
 //     password: "test",
 // });
+
+// Register
+// ApiDB.register({
+//     userName: "erik",
+//     password: "erik",
+//     email: "erik"
+// });
+// setTimeout(() => {
+//     ApiDB.register({
+//         userName: "asdf",
+//         password: "erik",
+//         email: "erik"
+//     });        
+// }, 1000);
+
+// Open Login
+// setTimeout(() => {
+//     SubPub.publish({
+//         event: "event::login:openForm",
+//     });
+// }, 500);
+
+// Update User Info
+// setTimeout(() => {
+//     SubPub.publish({
+//         event: "event::cover:show",
+//         detail: {
+//             cover: "userInfo",
+//             innerHTML: "yom an"
+//         }
+//     });
+// }, 500);
+setTimeout(() => {
+    View.showCover({cover: "userInfo"});
+}, 500);
+
+
+// Access localStorage
+function storage(){
+    // console.log({...localStorage});
+    console.log(State.local);
+}
+storage();
+
+
+
+
 
 
 // INIT COVER
@@ -24,9 +73,7 @@ SubPub.subscribe({
         SubPub.publish({
             event: "event::cover:hide",
             detail: { cover: "init" }
-        })
-        // document.querySelector("#init").classList.remove("on");
-        // document.querySelector("#init").classList.add("off");
+        });
     }
 });
 new Waiter({
@@ -85,6 +132,6 @@ View.Header.init(document.querySelector("#header"));
 View.Toneic.init(document.querySelector("#toneic"));
 View.Menu.init(document.querySelector("#menu"));
 View.LoginRegister.init(document.querySelector("#loginRegister"));
-
+View.UserInfo.init(document.querySelector("#userInfo"));
 
 
