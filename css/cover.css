@@ -110,6 +110,10 @@
     opacity: 1;
 }
 
+#registerForm input:not(type=submit) {
+    display: flex;
+}
+
 
 
 /* USER INFO */

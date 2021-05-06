@@ -49,7 +49,7 @@ export default {
 
     // },
 
-    login: function (data) {
+    login: function (data = {}) {
         let {userName = null, token = null, password = null, callback = null}  = data;
         userName = userName || State.local.userName;
         token = token || State.local.token;
@@ -74,7 +74,7 @@ export default {
                 requestKind: "request::login",
                 method: "POST",
                 url: API_URL,
-                body: JSON.stringify({ action: "player_login", payload: {userName, token, password} }),
+                body: JSON.stringify({ action: "user_login", payload: {userName, token, password} }),
                 callback: (response) => {
                     let event = (response.success && response.payload.data.loggedIn) ? "event::login:success" : "event::login:failed";
                     SubPub.publish({
@@ -90,7 +90,7 @@ export default {
     logout: function () {
         let userName = State.local.userName;
         if (userName) {
-            State.local = { token: "" };
+            State.updateLocal({ token: "" });
             console.log(State.local);
             SubPub.publish({
                 event: "event::logout:success"
@@ -120,7 +120,7 @@ export default {
                 requestKind: "request::register",
                 method: "POST",
                 url: API_URL,
-                body: JSON.stringify({ action: "player_register", payload: {userName, email, password} }),
+                body: JSON.stringify({ action: "user_register", payload: {userName, email, password} }),
                 callback: (response) => {
 
                     if (!response.success) {

@@ -76,15 +76,15 @@ setTimeout(() => { Waiter.hasHappened("thing::a:bit:of:logo"); }, 1000);
 
 
 // INIT DATA
-console.log(initData);
-
 if (typeof initData === "undefined") {
     myError.throw();
 }
 
 // Update serverPhase, etc
-State.local = initData;
+State.updateLocal(initData);
 
+
+// INITIAL LOGIN
 if (initData.loggedIn) {
     
     SubPub.publish({

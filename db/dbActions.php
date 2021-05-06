@@ -3,26 +3,80 @@
 include_once("./fileIO.php");
 include_once("../php/auxiliar.php");
 
-define('PLAYERS_DIRECTORY', './players');
+define('USERS_DIRECTORY', './users');
 
 
-function team_create(){}
+function bridge ($input) {
+
+    // ADD fileName for User, if required
+    if ($input["payload"]["userName"]) {
+        $input["payload"]["userFileName"] = aux_fileNameFromUserName($input["payload"]["userName"]);
+        if (!$input["payload"]["userFileName"]) {
+
+            if ($input["action"] !== "user_register") {
+                return [
+                    "data" => null,
+                    "message" => "UserID not found"
+                ];
+            }
+
+        }
+    }
+    
+    // Call function
+    return $input["action"]($input["payload"]);
+}
+
+
+function team_register ($payload) {
+
+    $teamName = $payload["teamName"];
+    $password = $payload["password"];
+    $email = $payload["email"];
+
+    $response = [
+        "data" => [ "registered" => false ],
+        "message" => null,
+    ];
+
+    if (aux_searchAmongTeams("teamName", $teamName) === null) {
+    
+        $response["data"] = [
+            "id" => aux_newID("team"),
+            "teamName" => $teamName,
+            "password" => $password,
+            "code" => randomToken(4),
+            "email" => $email,
+            "allowedUsers" => [],
+            "toneics" => [],
+            "points" => 0        
+        ];
+
+        putFileContents(USERS_DIRECTORY."/t".$response["data"]["id"].".json", $response["data"]);
+
+        unset($response["data"]["password"]);
+        $response["data"]["registered"] = true;
+            
+    }
+
+    return $response;
+}
 function team_editLetter(){}
 
 
-function player_singup(){}
-function player_login ($credentials){
+function user_singup(){}
+function user_login ($payload){
 
     $_SESSION["userData"] = ["loggedIn" => false];
     $_SESSION["loggedIn"] = false;
 
-    if (aux_checkCredentials($credentials)) {
+    if (aux_checkCredentials($payload)) {
         $update = [
             "token" => randomToken(),
             "loggedIn" => true
         ];
 
-        $_SESSION["userData"] = aux_updateUser($credentials["userName"], $update);
+        $_SESSION["userData"] = aux_updateUser($payload["userFileName"], $update);
         $_SESSION["loggedIn"] = true;        
     }
     
@@ -32,7 +86,7 @@ function player_login ($credentials){
     ];
     
 }
-function player_register ($payload) {
+function user_register ($payload) {
 
     $userName = $payload["userName"];
     $password = $payload["password"];
@@ -43,18 +97,17 @@ function player_register ($payload) {
         "message" => null,
     ];
 
-    $fileName = aux_fileNamePlayer($userName);
-    if (!file_exists($fileName)) {
+    if (aux_searchAmongUsers("userName", $userName) === null) {
         
         // Email in use?
-        if (aux_isEmailUsed($email)) {
+        if (aux_searchAmongUsers("email", $email) !== null) {
          
             $response["message"] = "email_in_use";
 
         } else {
 
             $response["data"] = [
-                "registered" => true,
+                "id" => aux_newID("user"),
                 "userName" => $userName,
                 "password" => $password,
                 "token" => randomToken(13),
@@ -63,95 +116,102 @@ function player_register ($payload) {
                 "currentTeam" => null,
                 "points" => 0        
             ];
-            file_put_contents($fileName, json_encode($response["data"], JSON_PRETTY_PRINT));
-    
-            unset($response["data"]["password"]);
 
+            putFileContents(USERS_DIRECTORY."/u".$response["data"]["id"].".json", $response["data"]);
+
+            unset($response["data"]["password"]);
+            $response["data"]["registered"] = true;
+                
             }
 
     } else {
 
-        $response["message"] = "userName_in_use"; // Någon @#$%&! har redan tagit användarnamnet";
+        $response["message"] = "userName_in_use";
 
     }
 
     return $response;
 }
-function player_logout(){}
-function player_joinTeam(){}
-function player_enlistTeam(){}
-function player_doToneic(){}
+function user_logout(){}
+function user_joinTeam(){}
+function user_enlistTeam(){}
+function user_doToneic(){}
 
 
 
 
 function aux_checkCredentials($credentials){
-    $userName = $credentials["userName"];
-    $password = $credentials["password"] ? $credentials["password"] : "";
-    $token = $credentials["token"] ? $credentials["token"] : "";
+    $userFileName = $credentials["userFileName"];
+    $password = $credentials["password"];
+    $token = $credentials["token"];
 
-    $fileName = aux_fileNamePlayer($userName);
+    $fileContents = getFileContents($userFileName);
 
-    if (file_exists($fileName)) {
+    if ($password && $password === $fileContents["password"]) {
+        return true;
+    }
 
-        $fileContents = getFileContents($fileName);
-        freeFile($fileName);
-
-        if ($password && $password === $fileContents["password"]) {
-            return true;
-        }
-
-        if ($token && $token === $fileContents["token"]) {
-            return true;
-        }
-
+    if ($token && $token === $fileContents["token"]) {
+        return true;
     }
 
     return false;
 }
-function aux_fileNamePlayer ($userName, $extension = "json") {
-    return PLAYERS_DIRECTORY."/".$userName.".".$extension;
+function aux_fileNameFromUserName ($userName) {
+    return aux_searchAmongUsers("userName", $userName);
 }
-function aux_isEmailUsed ($email) {
-    $isUsed = false;
+function aux_searchAmongUsers($key, $value, $onlyOne = true) {
+    $found = [];
     foreach (aux_userFileNamesAsArray() as $fileName) {
-        if (getFileContents($fileName)["email"] === $email) {
-            freeFile($fileName);
-            $isUsed = true;
-            break;
+        if (getFileContents($fileName)[$key] === $value) {
+
+            $found[] = $fileName;
+            if ($onlyOne) {
+                freeFile($fileName);
+                break;
+            }
+
         }
         freeFile($fileName);
     }
-    return $isUsed;
+    return $onlyOne ? $found[0] : $found;
 }
-function aux_updateUser ($userName, $update) {
-
-    $fileName = aux_fileNamePlayer($userName);
-    if (file_exists($fileName)) {
-        $userData = getFileContents($fileName);
-        foreach ($update as $key => $value) {
-            $userData[$key] = $value;
-        }
-        file_put_contents($fileName, json_encode($userData, JSON_PRETTY_PRINT));
-        freeFile($fileName);
-
-        unset($userData["password"]);
-        return $userData;
+function aux_updateUser ($userFileName, $update) {
+    $userData = getFileContents($userFileName);
+    foreach ($update as $key => $value) {
+        $userData[$key] = $value;
     }
 
-    return null;
+    putFileContents($userFileName, $userData);
+    
+    unset($userData["password"]);
+
+    return $userData;
 };
-function aux_userFileNamesAsArray () {
+function aux_userFileNamesAsArray ($path = USERS_DIRECTORY."/") {
     $array = [];
-    foreach (new DirectoryIterator(PLAYERS_DIRECTORY) as $file) {
+    foreach (new DirectoryIterator(USERS_DIRECTORY) as $file) {
         
         if ($file->isDot()) continue;
         if ($file->getExtension() !== "json") continue;
+        if (substr($file->getFilename(), 0, 1) !== "p") continue;
 
-        $array[] = PLAYERS_DIRECTORY."/".$file->getFilename();
+        $array[] = $path.$file->getFilename();
     }
     return $array;
 }
+function aux_newID($which) {
+
+    $allIDs = $which === "user" ? aux_userFileNamesAsArray() : aux_teamFileNamesAsArray();
+    $numbers = array_map(
+        function($fileName) {
+            return intval(substr(pathinfo($fileName, PATHINFO_FILENAME), 1));
+        }, $allIDs);
+
+    sort($numbers);
+    return substr("0000000000".($numbers[count($numbers) - 1] + 1), -7);
+}
+
 
 
 ?>

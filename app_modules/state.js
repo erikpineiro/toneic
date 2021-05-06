@@ -10,7 +10,7 @@ export const State = {
             _localState = {
                 currentView: "home",
             };
-            this.local = _localState;
+            this.updateLocal(_localState);
             return _localState;
         } else {
             _localState = JSON.parse(_localState);
@@ -18,11 +18,9 @@ export const State = {
         return _localState;
     },
 
-    set local (ls) {
-        let _localState = localStorage.getItem("localState") || "{}";
-        _localState = JSON.stringify({ ...JSON.parse(_localState), ...ls });
-        localStorage.setItem("localState", _localState);
-        return _localState;        
+    updateLocal(ls) {
+        let __ = JSON.parse(localStorage.getItem("localState") || "{}");
+        localStorage.setItem("localState", JSON.stringify({ ...__, ...ls }));
     },
 
     get currentToneicID () {
@@ -33,7 +31,7 @@ export const State = {
     updateTimeLeft: function(timeLeft) {
         let local = this.local;
         let serverPhase = {...local.serverPhase, timeLeft};
-        this.local = { local, serverPhase };
+        this.updateLocal({ ...local, serverPhase });
     },
 
 
@@ -47,16 +45,17 @@ export const State = {
 SubPub.subscribe({
     event: "event::login:success",
     listener: function (response) {
-        State.local = response.payload.data;
+        State.updateLocal(response.payload.data);
     }
 });
 
-// SubPub.subscribe({
-//     event: "event::register:success",
-//     listener: function (response) {
-//         State.local = response.payload.data;
-//     }
-// });
+
+SubPub.subscribe({
+    event: "event::register:success",
+    listener: function (response) {
+        State.updateLocal(response.payload.data);
+    }
+});
 
 
 

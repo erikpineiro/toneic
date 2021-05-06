@@ -1,32 +1,35 @@
 <?php
 
-function getFileContents($fileName) {
+function getFileContents ($fileName, $nTries = 0) {
 
-    $pathParts = pathInfo($fileName);
-    $noExtensionName = $pathParts["dirname"]."/".$pathParts["filename"];
-    $lockFile = $noExtensionName.".lock";
-    $extension = $pathParts["extension"];
-
-    if (file_exists($lockFile)) {
-        usleep(500000); // 500 ms = .5s
-        return getFileContents($fileName);
+    if (!file_exists($fileName)) {
+        return null;
     }
 
-    file_put_contents($lockFile, "locked"); // Creates the file
-
-    $content = null;
-
-    if (file_exists($fileName)) {
-        $content = file_get_contents($fileName);    
-        if ($extension === "json") {
-            $content = json_decode($content, true);
+    if (isFileLocked($fileName)) {
+        $nTries++;        
+        if ($nTries > 50) {
+            return null;
+        } else {
+            usleep(50000); // 50ms
+            return getFileContents($fileName, $nTries);
         }
     }
 
-    return $content;
+    lockFile($fileName);
+    $content = file_get_contents($fileName);
+    freeFile($fileName);
+
+    return json_decode($content, true);
 }
 
-function freeFile($fileName) {
+function putFileContents ($fileName, $data) {
+    lockFile($fileName);
+    file_put_contents($fileName, json_encode($data, JSON_PRETTY_PRINT));
+    freeFile($fileName);
+}
+
+function freeFile ($fileName) {
 
     $pathParts = pathInfo($fileName);
     $noExtensionName = $pathParts["dirname"]."/".$pathParts["filename"];
@@ -37,5 +40,22 @@ function freeFile($fileName) {
     }
 }
 
+function lockFile ($fileName) {
+
+    $pathParts = pathInfo($fileName);
+    $noExtensionName = $pathParts["dirname"]."/".$pathParts["filename"];
+    $lockFile = $noExtensionName.".lock";
+
+    file_put_contents($lockFile, "locked"); // Creates the file
+}
+
+function isFileLocked ($fileName) {
+
+    $pathParts = pathInfo($fileName);
+    $noExtensionName = $pathParts["dirname"]."/".$pathParts["filename"];
+    $lockFile = $noExtensionName.".lock";
+
+    return file_exists($lockFile);
+}
 
 ?>

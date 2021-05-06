@@ -34,7 +34,8 @@ switch ($_SERVER["REQUEST_METHOD"]) {
             // data => ...
             // message => ... (can be "")
             // ]
-        $response = $input["action"]($input["payload"]);
+        
+        $response = bridge($input);
         send(200, $response);
         break;
     

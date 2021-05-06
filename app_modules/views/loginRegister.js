@@ -31,7 +31,7 @@ export function init (loginReg) {
                 <p class="feedback">feedback</p>
                 <input type="submit" value="Registrera dig">
                 <p class="feedback">feedback</p>
-            </form>
+                </form>
             <div id="registerSuccess">
                 <p>Grattis!</p>
                 <p>Du är nu registrerad</p>
@@ -54,6 +54,7 @@ export function init (loginReg) {
 
     loginReg.querySelector("#linkToRegister").click({
         callback: () => {
+            showLoginRegister({})
             SubPub.publish({
                 event: "event::loginRegister",
                 detail: { which: "register" }
@@ -72,10 +73,17 @@ export function init (loginReg) {
 
     loginReg.querySelector("#loginAfterRegister").click({
         callback: () => {
-            State.login();
+            apiBridge.login();
+
+            setTimeout(() => {
+                resetRegister();
+                SubPub.publish({
+                    event: "event::loginRegister",
+                    detail: { which: "login" }
+                });
+            }, 50);
         }
     });    
-
 
 
     // SUBMITS
@@ -232,4 +240,8 @@ export function showLoginRegister (data) {
     // show
     showCover({cover: "loginRegister"});
 
+}
+
+function resetRegister () {
+    document.querySelectorAll(`#registerForm input:not([type="submit"])`).forEach( input => input.value = "");
 }
