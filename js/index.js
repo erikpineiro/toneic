@@ -39,17 +39,8 @@ import { Waiter } from "../app_modules/waiter.js";
 
 // Update User Info
 // setTimeout(() => {
-//     SubPub.publish({
-//         event: "event::cover:show",
-//         detail: {
-//             cover: "userInfo",
-//             innerHTML: "yom an"
-//         }
-//     });
+//     View.UserInfo.showUserInfo({innerHTML: "gjht"});
 // }, 500);
-setTimeout(() => {
-    View.showCover({cover: "userInfo"});
-}, 500);
 
 
 // Access localStorage

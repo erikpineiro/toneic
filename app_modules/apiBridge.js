@@ -14,6 +14,41 @@ const SHOW_OBJECT_RESPONSE = !SHOW_RAW_RESPONSE;
 
 export default {
 
+    // getCrosswords: function (data) {
+    //     let { week = -1, year = -1 } = data;
+    //     let toneicID = `t${year}v${week}`;
+
+    //     // Pre-Chekcs
+    //     let message = "";
+    //     if (week ===  -1 || year === -1) { message = "Bad format"; }
+
+    //     if (message) {
+    //         SubPub.publish({
+    //             event: "event::toneic:get:failed",
+    //             detail: _newResponse({
+    //                 requestKind:"request::invalid",
+    //                 message
+    //             })
+    //         });
+    //     } else {
+    //         _dbFetch({
+    //             requestKind: "request::toneic:get",
+    //             method: "GET",
+    //             url: API_URL,
+    //             body: JSON.stringify({ action: "player_login", payload: {userName, token, password} }),
+    //             callback: (response) => {
+    //                 let event = (response.success && response.payload.data.loggedIn) ? "event::login:success" : "event::login:failed";
+    //                 SubPub.publish({
+    //                     event,
+    //                     detail: response
+    //                 });
+    //                 callback && callback(response);
+    //             }
+    //         }); 
+    //     }    
+
+    // },
+
     login: function (data) {
         let {userName = null, token = null, password = null, callback = null}  = data;
         userName = userName || State.local.userName;

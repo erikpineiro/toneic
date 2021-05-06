@@ -2,6 +2,7 @@ import apiBridge from "../apiBridge.js";
 import { myError } from "../error.js";
 import { State } from "../state.js";
 import { SubPub } from "../subpub.js";
+import { showCover, hideCover } from "./views.js";
 
 
 export function init (userInfo) {
@@ -11,58 +12,37 @@ export function init (userInfo) {
         <div class="message"></div>
     `;
 
-    let timeoutID = null;
 
     userInfo.click({
         callback: () => {
+            let timeoutID = userInfo.dataset.timeout_id;
             timeoutID && clearTimeout(timeoutID);
-            SubPub.publish({
-                event: "event::cover:hide",
-                detail: { cover: "userInfo" }
-            });
-        }
-    });
-
-    SubPub.subscribe({
-        event: "event::cover:show",
-        listener: (detail) => {
-            let { cover, imageTop, innerHTML = "" } = detail;
-
-            console.log(cover);
-            if (cover !== "userInfo") return;
-
-            if (imageTop) {
-                userInfo.querySelector(".imageTop").setAttribute("src", imageTop);
-            } else {
-                userInfo.querySelector(".imageTop").style.display = "none";
-            }
-
-            userInfo.querySelector(".message").innerHTML = innerHTML;
-
-            timeoutID = setTimeout(() => {
-                SubPub.publish({
-                    event: "event::cover:hide",
-                    detail: { cover: "userInfo" }
-                });
-            }, 4000);
+            hideCover({cover: "userInfo"});
         }
     });
 }
 
 export function showUserInfo (data) {
 
-    let { imageTop, innerHTML = "" } = detail;
+    let { imageTop, innerHTML = "" } = data;
+    let userInfo = document.querySelector("#userInfo");
     
+    // image
     if (imageTop) {
         userInfo.querySelector(".imageTop").setAttribute("src", imageTop);
     } else {
         userInfo.querySelector(".imageTop").style.display = "none";
     }
 
+    // message
     userInfo.querySelector(".message").innerHTML = innerHTML;
 
+    // show
+    showCover({cover: "userInfo"});
 
-    View.showCover({cover: "userInfo"});
-
+    // hide automatically (will hide sooner if clicked)
+    userInfo.dataset.timeout_id = setTimeout(() => {
+        hideCover({cover: "userInfo"});
+    }, 4000);    
 
 }

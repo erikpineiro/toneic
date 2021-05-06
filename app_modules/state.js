@@ -30,6 +30,12 @@ export const State = {
         return toneicWeek();
     },
 
+    updateTimeLeft: function(timeLeft) {
+        let local = this.local;
+        let serverPhase = {...local.serverPhase, timeLeft};
+        this.local = { local, serverPhase };
+    },
+
 
     serverPhase: function (data) {
         ApiDB.serverPhase(data);

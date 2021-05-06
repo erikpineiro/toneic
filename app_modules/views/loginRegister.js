@@ -2,6 +2,8 @@ import apiBridge from "../apiBridge.js";
 import { myError } from "../error.js";
 import { State } from "../state.js";
 import { SubPub } from "../subpub.js";
+import { showCover, hideCover } from "./views.js";
+import { showUserInfo } from "./userInfo.js";
 
 
 
@@ -204,31 +206,30 @@ export function init (loginReg) {
 
     loginReg.subscribe({
         event: "event::login:success",
-        callback: (response) => {
-            console.log("yeah!");
+        callback: (e) => {
+            let userName = e.detail.payload.data.userName;
+            showUserInfo({
+                innerHTML: `Hej ${userName}!<br> Kör hårt!`
+            });
+            hideCover({cover: "loginRegister"});
         }
     });
-
-    loginReg.subscribe({
-        event: "event::login:openForm",
-        callback: (detail) => {
-
-            SubPub.publish({
-                event: "event::cover:show",
-                detail: { cover: "loginRegister" }
-            })
-
-            loginReg.querySelector("#loginForm").classList.add("open");
-            loginReg.querySelector("#registerForm").classList.remove("open");
-
-            let userName = (detail && detail.userName) || (State.local.userData && State.local.userData.userName);
-            if (userName) {
-                loginReg.querySelector("#inputLoginUserName").value = userName;
-            }
-
-        }
-    });
-
     
 }
 
+export function showLoginRegister (data) {
+
+    let userName = (data && data.userName) || (State.local.userData && State.local.userData.userName);
+    let loginReg = document.querySelector("#loginRegister");
+    
+    loginReg.querySelector("#loginForm").classList.add("open");
+    loginReg.querySelector("#registerForm").classList.remove("open");
+
+    if (userName) {
+        loginReg.querySelector("#inputLoginUserName").value = userName;
+    }
+
+    // show
+    showCover({cover: "loginRegister"});
+
+}

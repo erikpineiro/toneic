@@ -178,7 +178,6 @@ class Word {
     nextCell (cell) {
 
         let index = this.cells.indexOf(cell);
-        console.log(index);
         if (index >= this.cells.length - 1) {
             return null;
         } else {

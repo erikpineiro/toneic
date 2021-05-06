@@ -36,7 +36,6 @@ export function init(header) {
     hamburgerHtml.click({
         callback: () => {
             
-            console.log("Hamburger");
             let isOpen = hamburgerHtml.classList.contains("open");
             let event = isOpen ? "event::menu:close" : "event::menu:open";
 

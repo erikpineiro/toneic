@@ -1,6 +1,7 @@
 import apiBridge from "../apiBridge.js";
 import { State } from "../state.js";
 import { SubPub } from "../subpub.js";
+import { showLoginRegister } from "./loginRegister.js";
 
 
 
@@ -84,9 +85,7 @@ export function init (menu) {
 
     menu.querySelector("#menuLogin").click({
         callback: () => {
-            SubPub.publish({
-                event: "event::login:openForm"
-            });
+            showLoginRegister({cover: "loginRegister"});
         }
     });
 

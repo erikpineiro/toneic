@@ -100,3 +100,13 @@
 #menu button.invisible {
     display: none;
 }
+
+
+
+/* TONEIC */
+#toneic {
+    font-family: var(--ft2);
+}
+#toneic .timeLeft {
+    text-align: center;
+}

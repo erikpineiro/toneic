@@ -7,7 +7,6 @@
     display: none;
     flex-direction: column;
     justify-content: center;
-    /* align-items: center; */
     height: calc(100% - 2 * var(--pdContent));
 
     opacity: 0;
@@ -119,19 +118,10 @@
     font-family: var(--ft2);
     font-size: 3vh;
     font-weight: 700;
-
-    /* display: flex;
-    opacity: 1;
-    transition: opacity .5s; */
+}
+#userInfo img {
+    margin-bottom: 4vh;
 }
 #userInfo .message {
     text-align: center;
-    margin-top: 4vh;
 }
-/* #userInfo.invisible {
-    display: none;
-    opacity: 0;
-}
-#userInfo.goingOut {
-    opacity: 0;
-} */

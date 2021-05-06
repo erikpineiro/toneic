@@ -38,8 +38,10 @@ function serverPhase () {
     }
    
     return [
-        "phase" => $phase,
-        "timeLeft" => $timeLeft,
+        // "phase" => $phase,
+        "phase" => "phase::Toneic",
+        // "timeLeft" => $timeLeft,
+        "timeLeft" => 345,
         "startDay" => $start_day,
         "startHour" => $start_hours,
         "endDay" => $end_day

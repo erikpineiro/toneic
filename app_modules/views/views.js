@@ -32,10 +32,10 @@ export function hideCover (data) {
     let element = document.querySelector(`#${cover}`);    
     element.classList.add("off");
 
-    let transitionTime = parseInt(getComputedStyle(element).getPropertyValue("--transitionTime"));
+    let transitionTime = parseFloat(getComputedStyle(element).getPropertyValue("--transitionTime"));
     setTimeout(() => {
         element.classList.remove("on");
-    }, (transitionTime + 4) * 1000);
+    }, transitionTime * 1000);
 
 }
 
