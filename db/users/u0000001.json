@@ -2,11 +2,16 @@
     "userID": "u0000001",
     "userName": "erik",
     "password": "erik",
-    "token": "OeuRm2eZjDgIl",
+    "token": "0qYO7LeEpO4ko",
     "email": "erik",
     "latestTeam": null,
     "currentTeam": null,
-    "toneics": [],
+    "toneics": [
+        {
+            "toneicID": "t21v18",
+            "teamID": "t_u0000001"
+        }
+    ],
     "points": 0,
     "loggedIn": true
 }

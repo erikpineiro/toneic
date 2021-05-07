@@ -1,32 +1,39 @@
 <?php
 
 
-$toneics = [
-    [
-        "toneicID" => "toneic1",
-        "teamID" => "team1"
-    ],
-    [
-        "toneicID" => "toneic2",
-        "teamID" => "team2"
-    ],
-    [
-        "toneicID" => "toneic3",
-        "teamID" => "team3"
-    ],
-    [
-        "toneicID" => "toneic4",
-        "teamID" => "team4"
-    ],
-];
+function a($p) { echo "a".$p; }
+function b($p) { echo "b".$p; }
 
-$index = array_search('toneic3', array_column($toneics, 'toneicID'));
-echo gettype($index);
-if ($index !== false) {
-    echo "SPLICING".$index.")";
-    array_splice($toneics, $index, 1);
-}
-var_dump($toneics)
+$r = 1;
+$function = $r === 1 ? "a" : "b";
+$function("e");
+
+// $toneics = [
+//     [
+//         "toneicID" => "toneic1",
+//         "teamID" => "team1"
+//     ],
+//     [
+//         "toneicID" => "toneic2",
+//         "teamID" => "team2"
+//     ],
+//     [
+//         "toneicID" => "toneic3",
+//         "teamID" => "team3"
+//     ],
+//     [
+//         "toneicID" => "toneic4",
+//         "teamID" => "team4"
+//     ],
+// ];
+
+// $index = array_search('toneic3', array_column($toneics, 'toneicID'));
+// echo gettype($index);
+// if ($index !== false) {
+//     echo "SPLICING".$index.")";
+//     array_splice($toneics, $index, 1);
+// }
+// var_dump($toneics)
 
 
 // $date=date("W");

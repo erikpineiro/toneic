@@ -6,6 +6,11 @@
     "allowedUsers": [
         "u0000001"
     ],
-    "toneics": [],
+    "toneics": [
+        {
+            "toneicID": "t21v18",
+            "actions": []
+        }
+    ],
     "points": 0
 }

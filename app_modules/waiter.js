@@ -9,10 +9,9 @@ export class Waiter {
 
     static hasHappened (thing) {
 
-        console.log("has happened:", thing);
+        // console.log("has happened:", thing);
 
         for (let i = waiters.length - 1; i >= 0; i--) {
-            console.log(waiters[i].waitingForThings);
             let index = waiters[i].waitingForThings.indexOf(thing);
             if (index !== -1) {
                 waiters[i].waitingForThings.splice(index, 1);

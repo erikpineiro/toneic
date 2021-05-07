@@ -7,20 +7,40 @@ define('USERS_DIRECTORY', './users/');
 define('TEAMS_DIRECTORY', './teams/');
 
 
+// Bridge to API. All functions go through here
 function bridge ($input) {
 
-    // check that files are in place    
-    if (isset($input["payload"]["userID"]) && !file_exists(aux_fileNameFromUserID($input["payload"]["userID"]))) {
+    if (!$input["payload"]) {
         return [
             "data" => null,
-            "message" => "Bridge: User not found"
+            "message" => "bridge_no_payload"
         ];
     }
-    if (isset($input["payload"]["teamID"]) && !file_exists(aux_fileNameFromTeamID($input["payload"]["teamID"]))) {
-        return [
-            "data" => null,
-            "message" => "Bridge: Team not found"
+
+    // check that files are in place
+    if (isset($input["payload"]["userID"])) {
+        $data = [
+            "kind" => "user",
+            "entityID" => $input["payload"]["userID"]
         ];
+        if (!entityExist($data)) {
+            return [
+                "data" => null,
+                "message" => "bridge_user_not_found"
+            ];
+        }
+    }
+    if (isset($input["payload"]["teamID"])) {
+        $data = [
+            "kind" => "team",
+            "entityID" => $input["payload"]["teamID"]
+        ];
+        if (!entityExist($data)) {
+            return [
+                "data" => null,
+                "message" => "bridge_team_not_found"
+            ];
+        }
     }
 
     // Check that the user is legit
@@ -32,6 +52,27 @@ function bridge ($input) {
     return $input["action"]($input["payload"]);
 }
 
+
+function entityExist($payload) {
+
+    if (!$payload) return false;
+
+    $kind = $payload["kind"];
+    $entityID = $payload["entityID"];
+    $entityName = $payload["entityName"];
+
+    if (!$kind || (!$entityID && !$entityName)) return false;
+
+    if (!$entityID) {
+        $function = $kind === "user" ? "aux_fileNameFromUserName" : "aux_fileNameFromTeamName";
+        $entityID = $function($entityName);
+    }
+
+    $function = $kind === "user" ? "aux_filePathFromUserID" : "aux_filePathFromTeamID";
+    $filePath = $function($entityID);
+
+    return file_exists($filePath);
+}
 
 function team_register ($payload) {
 
@@ -76,7 +117,6 @@ function team_register ($payload) {
 function team_editLetter(){}
 
 
-function user_singup(){}
 function user_login ($payload) {
 
     $_SESSION["userData"] = ["loggedIn" => false];
@@ -161,51 +201,118 @@ function user_register ($payload) {
 
     return $response;
 }
-function user_logout(){}
 function user_joinTeam($payload){
-
-    $notJoinedData = [["joined" => false]];
 
     $userID = $payload["userID"];
     $teamID = $payload["teamID"];
     $passwordForTeam = $payload["passwordForTeam"];
+
+
+    // Does team exist?
+
     
-    $teamData = getFileContents(aux_fileNameFromTeamID($teamID));
+    $responseData = ["teamID" => $teamID];
+    $responseMessage = "team_credentials_invalid";
+
+
+    // User allowed to join?
+    $teamData = getFileContents(aux_filePathFromTeamID($teamID));
     if (!in_array($userID, $teamData["allowedUsers"], true)) {
         $credentials = [
-            "fileName" => aux_fileNameFromTeamID($teamID),
+            "fileName" => aux_filePathFromTeamID($teamID),
             "password" => $password
         ];
         if (!aux_checkCredentials($credentials)) {
-            return aux_response($notJoinedData, "No credentials for this team");
+            $responseData["joined"] = false;
+            return aux_response($responseData, $responseMessage);
         }
     }
-    
-    $userData = getFileContents(aux_fileNameFromUserID($userID));
-    $toneics = $userData["toneics"];
 
-    // Already joined a team for this toneic?
-    $index = array_search(toneicID(), array_column($toneics, 'toneicID'));
+    // Get info about user's toneics (all history)
+    $userData = getFileContents(aux_filePathFromUserID($userID));
+    $userToneics = $userData["toneics"];
+
+
+    // Eventually: Remove other teams for this toneic. User only be in one team at the time
+    $index = array_search(toneicID(), array_column($userToneics, 'toneicID'));
+    $changeTeam = [
+        "change" => false,
+        "new" => false
+    ];
     if ($index !== false) {
-        array_splice($toneics, $index, 1);
+        if ($userToneics[$index]["teamID"] !== $teamID) {
+            array_splice($userToneics, $index, 1);
+            $changeTeam["change"] = true;
+        }
+    } else {
+        $changeTeam["new"] = true;
     }
-    
-    // Prepare update
-    $toneics[] = [
-        "toneicID" => toneicID(),
-        "teamID" => $teamID
-    ];
-    $update = [
-        "toneics" => $toneics
-    ];
+    $responseData["changeTeam"] = $changeTeam;
 
-    $update = aux_update(aux_fileNameFromUserID($userID), $update);
-    $message = $update ? "User joined team" : "Network problems";
-    if (!$update) $update = $notJoinedData;
 
-    return aux_response($update, $message);
+    // If necessary, update user information
+    if ($changeTeam["new"] || $changeTeam["change"]) {
+
+        $userToneics[] = [
+            "toneicID" => toneicID(),
+            "teamID" => $teamID
+        ];
+        $userUpdate = [
+            "toneics" => $userToneics
+        ];
+
+        $userUpdate = aux_update(aux_filePathFromUserID($userID), $userUpdate);
+
+        // Check result of update
+        if ($userUpdate) {
+            $responseData["joined"] = true;
+            $responseMessage = "team_joined";
+        } else {
+            $responseData["joined"] = false;
+            $responseMessage = "team_join_network_problems";
+        }
+
+    } else {
+
+        $responseData["joined"] = true;
+        $responseMessage = "team_joined";
+
+    }
+
+
+    // If all ok, make sure that team has info about this toneic.
+    // Team could have info already if another user joined for this toneic earlier.
+    if ($responseData["joined"]) {
+        $teamData = getFileContents(aux_filePathFromTeamID($teamID));
+        $teamToneics = $teamData["toneics"];
+        if (array_search(toneicID(), array_column($teamToneics, 'toneicID')) === false) {
+
+            // Prepare
+            $teamToneics[] = [
+                "toneicID" => toneicID(),
+                "actions" => []
+            ];
+            $teamUpdate = [
+                "toneics" => $teamToneics
+            ];
+
+            // Update
+            $teamUpdate = aux_update(aux_filePathFromTeamID($teamID), $teamUpdate);
+
+            // Check update went well
+            // ... TO DO... what if it didn't?
+            $message .= $teamUpdate ? ", team_toneic_created_success" : ", team_toneic_created_failed";
+        } else {
+            $message .= ", team_toneic_already_in_place";
+        }
+    }
+
+
+    // Response
+    return aux_response($responseData, $responseMessage);
 }
 function user_joinOwnTeam ($payload) {
+    $payload["ownTeam"] = true;
     $payload["teamID"] = aux_OwnTeamIDFromUserID($payload["userID"]);
     return user_joinTeam($payload);
 }
@@ -215,6 +322,7 @@ function user_doToneic(){}
 
 
 
+// Check credentials
 function aux_checkCredentials($credentials) {
     // Both for team and user
 
@@ -238,7 +346,7 @@ function aux_isUserLegit($credentials) {
     $userName = $credentials["userName"];
     $userID = $credentials["userID"];
     if (isset($credentials["userID"])) {
-        $fileName = aux_fileNameFromUserID($credentials["userID"]);
+        $fileName = aux_filePathFromUserID($credentials["userID"]);
     }
     if (isset($credentials["userName"])) {
         $fileName = aux_fileNameFromUserName($credentials["userName"]);
@@ -247,74 +355,23 @@ function aux_isUserLegit($credentials) {
     return aux_checkCredentials($credentials);
 }
 
+
+// Files and file names
 function aux_fileNameFromUserName ($userName) {
     return aux_searchAmongUsers("userName", $userName);
 }
-function aux_fileNameFromTeamID ($ID) {
+function aux_fileNameFromTeamName ($userName) {
+    return aux_searchAmongTeams("teamName", $teamName);
+}
+function aux_filePathFromTeamID ($ID) {
     return TEAMS_DIRECTORY.$ID.".json";
 }
-function aux_fileNameFromUserID ($ID) {
+function aux_filePathFromUserID ($ID) {
     return USERS_DIRECTORY.$ID.".json";
 }
 function aux_OwnTeamIDFromUserID ($userID) {
     return "t_".$userID;
 }
-
-function aux_searchAmong($where, $key, $value, $onlyOne) {
-    $found = [];
-    $all = $where = "users" ? aux_userFileNamesAsArray() : aux_teamFileNamesAsArray();
-    foreach ($all as $fileName) {
-        if (getFileContents($fileName)[$key] === $value) {
-
-            if ($where === "teams") {
-                echo getFileContents($fileName);
-            }
-
-            $found[] = $fileName;
-            if ($onlyOne) {
-                freeFile($fileName);
-                break;
-            }
-        }
-        freeFile($fileName);
-    }
-    return $onlyOne ? $found[0] : $found;
-}
-function aux_searchAmongTeams($key, $value, $onlyOne = true) {
-    return aux_searchAmong("teams", $key, $value, $onlyOne);
-}
-function aux_searchAmongUsers($key, $value, $onlyOne = true) {
-    return aux_searchAmong("users", $key, $value, $onlyOne);
-    // $found = [];
-    // foreach (aux_userFileNamesAsArray() as $fileName) {
-    //     if (getFileContents($fileName)[$key] === $value) {
-
-    //         $found[] = $fileName;
-    //         if ($onlyOne) {
-    //             freeFile($fileName);
-    //             break;
-    //         }
-
-    //     }
-    //     freeFile($fileName);
-    // }
-    // return $onlyOne ? $found[0] : $found;
-}
-
-function aux_update ($fileName, $update) {
-    $data = getFileContents($fileName);
-
-    foreach ($update as $key => $value) {
-        $data[$key] = $value;
-    }
-
-    putFileContents($fileName, $data);
-
-    if (isset($data["password"])) unset($data["password"]);
-
-    return $data;
-}
-
 function aux_fileNamesAsArray($path) {
     $array = [];
     foreach (new DirectoryIterator($path) as $file) {
@@ -332,19 +389,59 @@ function aux_teamFileNamesAsArray ($path = TEAMS_DIRECTORY) {
 }
 function aux_userFileNamesAsArray ($path = USERS_DIRECTORY) {
     return aux_fileNamesAsArray($path);
-
-    // $array = [];
-    // foreach (new DirectoryIterator(USERS_DIRECTORY) as $file) {
-        
-    //     if ($file->isDot()) continue;
-    //     if ($file->getExtension() !== "json") continue;
-    //     if (substr($file->getFilename(), 0, 1) !== "p") continue;
-
-    //     $array[] = $path.$file->getFilename();
-    // }
-    // return $array;
 }
 
+
+// Search
+function aux_searchAmong($where, $key, $value, $onlyOne) {
+    $found = [];
+    $all = $where === "users" ? aux_userFileNamesAsArray() : aux_teamFileNamesAsArray();
+    foreach ($all as $fileName) {
+        if (getFileContents($fileName)[$key] === $value) {
+            $found[] = $fileName;
+            if ($onlyOne) {
+                freeFile($fileName);
+                break;
+            }
+        }
+        freeFile($fileName);
+    }
+    return $onlyOne ? $found[0] : $found;
+}
+function aux_searchAmongTeams($key, $value, $onlyOne = true) {
+    return aux_searchAmong("teams", $key, $value, $onlyOne);
+}
+function aux_searchAmongUsers($key, $value, $onlyOne = true) {
+    return aux_searchAmong("users", $key, $value, $onlyOne);
+}
+
+
+// Update
+function aux_update ($fileName, $update) {
+    $data = getFileContents($fileName);
+
+    foreach ($update as $key => $value) {
+        $data[$key] = $value;
+    }
+
+    putFileContents($fileName, $data);
+
+    if (isset($data["password"])) unset($data["password"]);
+
+    return $data;
+}
+
+
+// Response
+function aux_response($data, $message) {
+    return [
+        "data" => $data,
+        "message" => $message
+    ];
+}
+
+
+// Varied
 function aux_newID($which) {
 
     $allIDs = $which === "user" ? aux_userFileNamesAsArray() : aux_teamFileNamesAsArray();
@@ -359,12 +456,7 @@ function aux_newID($which) {
     return $prefix.substr("0000000000".($numbers[count($numbers) - 1] + 1), -7);
 }
 
-function aux_response($data, $message) {
-    return [
-        "data" => $data,
-        "message" => $message
-    ];
-}
+
 
 
 ?>

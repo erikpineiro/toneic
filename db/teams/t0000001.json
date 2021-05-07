@@ -1,10 +1,10 @@
 {
     "teamID": "t0000001",
     "teamName": "Bobinas",
-    "password": null,
+    "password": "pss",
     "email": "erik",
     "allowedUsers": [
-        null
+        "u0000001"
     ],
     "toneics": [],
     "points": 0

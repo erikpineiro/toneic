@@ -3,9 +3,7 @@ import { State } from "./state.js";
 import { SubPub } from "./subpub.js";
 
 const API_URL = "./db/api.php";
-const HEADERS = { "Content-Type": "application/json" };   // I use text in development to see errors in PHP
-// const HEADERS = { "Content-Type": "text/plain" };   // I use text in development to see errors in PHP
-                                                    // For production change headers to JSON.
+const HEADERS = { "Content-Type": "application/json" };
 const SHOW_RAW_RESPONSE = true;
 const SHOW_OBJECT_RESPONSE = !SHOW_RAW_RESPONSE;
 
@@ -83,7 +81,9 @@ export default {
         });
     },
 
-    joinOwnTeam: function () {
+    joinOwnTeam: function (data = {}) {
+
+        let { callback } = data;
         let userID = State.local.userID;
         let token = State.local.token;
         console.log("Join Own Team Started", userID, token);
@@ -93,7 +93,14 @@ export default {
             method: "POST",
             url: API_URL,
             body: JSON.stringify({ action: "user_joinOwnTeam", payload: {userID, token} }),
-            callback: (response) => {}
+            callback: (response) => {
+                let event = (response.success && response.payload.data.joined) ? "event::team:join:success" : "event::team:join:failed";
+                SubPub.publish({
+                    event,
+                    detail: response
+                });
+                callback && callback(response);
+            }
         });
     },
 
@@ -266,7 +273,6 @@ function _post (data) {
 
     let {body, url, callback} = data;
     let headers = HEADERS;
-    console.log(headers);
     let request = new Request(url, {
         method: "POST",
         headers,
@@ -323,7 +329,6 @@ function _fetch (data) {
             payload = JSON.parse(payload);
         }
 
-        console.log(payload);
         if (SHOW_OBJECT_RESPONSE) {
             console.log(payload);
         }
@@ -352,6 +357,7 @@ function _newResponse(response){
             response = { ...response, success: false };
             break;
 
+        case "request::joinTeam":
         case "request::doesEntityExist":
         case "request::serverPhase":
         case "request::login":
