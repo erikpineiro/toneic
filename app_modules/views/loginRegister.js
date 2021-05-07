@@ -98,7 +98,7 @@ export function init (loginReg) {
 
     loginReg.querySelector("#registerForm").addEventListener("submit", function(e) {
         e.preventDefault();
-        apiBridge.register({
+        apiBridge.registerUser({
             userName: loginReg.querySelector("#inputRegisterUserName").value,
             password: loginReg.querySelector("#inputRegisterPassword").value,
             email: loginReg.querySelector("#inputRegisterEmail").value,
@@ -121,7 +121,7 @@ export function init (loginReg) {
 
     // EVENT SUBSCRIPTIONS
     loginReg.subscribe({
-        event: "event::register:success",
+        event: "event::register:user:success",
         callback: (e) => {
             let response = e.detail;
             let userName = response.payload.data.userName;
@@ -135,7 +135,7 @@ export function init (loginReg) {
     });
 
     loginReg.subscribe({
-        event: "event::register:failed",
+        event: "event::register:user:failed",
         callback: (e) => {
 
             let response = e.detail;

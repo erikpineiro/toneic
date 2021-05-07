@@ -1,3 +1,4 @@
+import { myError } from "./error.js";
 import { State } from "./state.js";
 import { SubPub } from "./subpub.js";
 
@@ -49,6 +50,53 @@ export default {
 
     // },
 
+    doesEntityExist: function (data) {
+        let { entity, key, value } = data;
+
+        if ( entity === undefined || key === undefined || value === undefined ) { myError.throw(); }
+
+        _dbFetch({
+            requestKind: "request::doesEntityExist",
+            method: "GET",
+            url: API_URL,
+            parameters: [["entity", entity], [key, value]],
+            callback: (response) => {
+                callback && callback(response);
+            }
+        });        
+
+    },
+
+    joinTeam: function (data) {
+        let { teamID } = data;
+        let userID = State.local.userID;
+        let token = State.local.token;
+
+        console.log("Join Team Started", userID, token);
+
+        _dbFetch({
+            requestKind: "request::joinTeam",
+            method: "POST",
+            url: API_URL,
+            body: JSON.stringify({ action: "user_joinTeam", payload: {userID, token, teamID} }),
+            callback: (response) => {}
+        });
+    },
+
+    joinOwnTeam: function () {
+        let userID = State.local.userID;
+        let token = State.local.token;
+        console.log("Join Own Team Started", userID, token);
+
+        _dbFetch({
+            requestKind: "request::joinTeam",
+            method: "POST",
+            url: API_URL,
+            body: JSON.stringify({ action: "user_joinOwnTeam", payload: {userID, token} }),
+            callback: (response) => {}
+        });
+    },
+
     login: function (data = {}) {
         let {userName = null, token = null, password = null, callback = null}  = data;
         userName = userName || State.local.userName;
@@ -98,7 +146,9 @@ export default {
         }
     },
 
-    register: function (data) {
+    registerUser: function (data) {
+
+        console.log("Register User Started", data); 
         let {userName = null, email = null, password = null, callback = null}  = data;
        
         // Pre-Chekcs
@@ -109,7 +159,7 @@ export default {
 
         if (message) {
             SubPub.publish({
-                event: "event::register:failed",
+                event: "event::register:user:failed",
                 detail: _newResponse({
                     requestKind:"request::invalid",
                     message
@@ -117,7 +167,7 @@ export default {
             });
         } else {
             _dbFetch({
-                requestKind: "request::register",
+                requestKind: "request::register:user",
                 method: "POST",
                 url: API_URL,
                 body: JSON.stringify({ action: "user_register", payload: {userName, email, password} }),
@@ -126,13 +176,13 @@ export default {
                     if (!response.success) {
 
                         SubPub.publish({
-                            event: "event::register:failed",
+                            event: "event::register:user:failed",
                             detail: response
                         });
 
                     } else {
         
-                        let event = response.payload.data.registered ? "event::register:success" : "event::register:failed";
+                        let event = response.payload.data.registered ? "event::register:user:success" : "event::register:user:failed";
                         SubPub.publish({
                             event,
                             detail: response
@@ -143,6 +193,41 @@ export default {
                 }
             });
         }        
+    },
+
+    registerTeam: function (data) {
+
+        console.log("Register Team Started", data);
+        let {teamName = null, email = null, passwordForTeam = null, callback = null}  = data;
+        let userID = State.local.userID;
+        let token = State.local.token;
+       
+        _dbFetch({
+            requestKind: "request::register:team",
+            method: "POST",
+            url: API_URL,
+            body: JSON.stringify({ action: "team_register", payload: {teamName, email, passwordForTeam, userID, token} }),
+            callback: (response) => {
+
+                if (!response.success) {
+
+                    SubPub.publish({
+                        event: "event::register:team:failed",
+                        detail: response
+                    });
+
+                } else {
+    
+                    let event = response.payload.data.registered ? "event::register:team:success" : "event::register:team:failed";
+                    SubPub.publish({
+                        event,
+                        detail: response
+                    });
+                }
+            
+                callback && callback(response);
+            }
+        });
     },
 
     serverPhase: function (data) {
@@ -158,11 +243,18 @@ export default {
     }
 }
 
+
+
 function _get (data) {
 
-    let { url, vars = "", callback } = data;
+    let { url, parameters = [], callback } = data;
     let headers = { ...HEADERS };
-    let request = new Request(url + vars, {
+
+    let paramString = parameters.length ?
+                                    "?" + parameters.reduce((acc, pair, index) => acc + `${(index > 0) ? "&" : ""}${pair[0]}=${pair[1]}`, "")
+                                    : "";
+
+    let request = new Request(url + paramString, {
         method: "GET",
         headers
     });
@@ -236,12 +328,12 @@ function _fetch (data) {
             console.log(payload);
         }
 
-        callback(_newResponse({ requestKind, payload }));
+        callback && callback(_newResponse({ requestKind, payload }));
 
     } )
     .catch(e => {
         console.log(e);
-        callback(_newResponse({ success: false, message: "network_error", requestKind }));
+        callback && callback(_newResponse({ success: false, message: "network_error", requestKind }));
     });
 }
 function _newResponse(response){
@@ -260,9 +352,10 @@ function _newResponse(response){
             response = { ...response, success: false };
             break;
 
+        case "request::doesEntityExist":
         case "request::serverPhase":
         case "request::login":
-        case "request::register":
+        case "request::register:user":
             break;
 
         default:

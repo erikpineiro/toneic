@@ -9,7 +9,7 @@ export default {
          }
          return min + Math.floor( (max-min) * Math.random() );
       },
-      randomString: function(length) {
+      string: function(length) {
          // https://stackoverflow.com/a/1349426
          let result           = [];
          let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

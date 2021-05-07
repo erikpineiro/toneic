@@ -13,6 +13,27 @@ switch ($_SERVER["REQUEST_METHOD"]) {
 
     case "GET":
 
+
+        switch ($_GET["action"]) {
+            case "serverPhase":
+                $legitCheck = false;
+                break;
+            case "other":
+            default:
+                $legitCheck = true;
+                break;
+        }
+
+        if ($legitCheck) {
+            $credentials = [
+                "userID" => $_GET["userID"],
+                "token" => $_GET["token"]
+            ];
+            if (!isUserLegit($credentials)) {
+                send(200, aux_response(null, "User credentials invalid"));
+            }
+        }
+
         if (isset($_GET["serverPhase"])) {
             send(200, serverPhase());
         }
@@ -35,6 +56,10 @@ switch ($_SERVER["REQUEST_METHOD"]) {
             // message => ... (can be "")
             // ]
         
+
+        // all POST-functions require legitCheck 
+        $input["legitCheck"] = true;
+
         $response = bridge($input);
         send(200, $response);
         break;
@@ -52,33 +77,8 @@ switch ($_SERVER["REQUEST_METHOD"]) {
 function send($code, $response, $header = "Content-Type: text/plain"){
     http_response_code($code);
     header($header);
-    echo json_encode([
-        "data" => $response["data"],
-        "message" => $response["message"]
-        ]);
-
+    echo json_encode($response);
     exit();
-}
-function getState(){
-
-    global $stateFile;
-    global $lockFile;
-
-    if (file_exists($lockFile)) {
-        usleep(500000); // 500 ms = .5s
-        return getState();
-    }
-
-    file_put_contents($lockFile, "locked");
-
-    if (file_exists($stateFile)) {
-        $stateJSON = file_get_contents($stateFile);
-        $state = json_decode($stateJSON, true);
-    } else {
-        $state = null;
-    }
-
-    return $state;
 }
 
 ?>

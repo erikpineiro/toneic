@@ -51,7 +51,7 @@ SubPub.subscribe({
 
 
 SubPub.subscribe({
-    event: "event::register:success",
+    event: "event::register:user:success",
     listener: function (response) {
         State.updateLocal(response.payload.data);
     }

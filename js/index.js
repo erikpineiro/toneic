@@ -6,6 +6,7 @@ import { SubPub } from "../app_modules/subpub.js";
 import { State } from "../app_modules/state.js";
 import * as View from "../app_modules/views/views.js"
 import { Waiter } from "../app_modules/waiter.js";
+import auxiliarFunctions from "../app_modules/auxiliarFunctions.js";
 
 
 // TEST
@@ -17,13 +18,18 @@ import { Waiter } from "../app_modules/waiter.js";
 // });
 
 // Register
-// ApiDB.register({
+// ApiDB.registerUser({
+//     userName: auxiliarFunctions.random.string(5),
+//     password: "erik",
+//     email: auxiliarFunctions.random.string(5),
+// });
+// ApiDB.registerUser({
 //     userName: "erik",
 //     password: "erik",
-//     email: "erik"
+//     email: "erik",
 // });
 // setTimeout(() => {
-//     ApiDB.register({
+//     ApiDB.registerUser({
 //         userName: "asdf",
 //         password: "erik",
 //         email: "erik"
@@ -41,6 +47,18 @@ import { Waiter } from "../app_modules/waiter.js";
 // setTimeout(() => {
 //     View.UserInfo.showUserInfo({innerHTML: "gjht"});
 // }, 500);
+
+// Register Team
+ApiDB.registerTeam({
+    userID: State.local.userID,
+    passwordForTeam: "pss",
+    token: State.local.token,
+    teamName: "Bobinas",
+    email: State.local.email,
+});
+
+// Join Team
+
 
 
 // Access localStorage

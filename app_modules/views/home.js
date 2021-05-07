@@ -1,4 +1,5 @@
 
+import apiBridge from "../apiBridge.js";
 import * as Behaviour from "../behaviour.js";
 import * as Error from "../error.js";
 import { State } from "../state.js";
@@ -53,6 +54,13 @@ function getAlone () {
     
     button.click({
         callback: function(){
+
+            // Automatically join own team. If logged in.
+            if (State.local.loggedIn) {
+                apiBridge.joinOwnTeam();
+            }
+
+            // Go to View
             SubPub.publish({
                 event: "event::view",
                 detail: { view: "toneic" }

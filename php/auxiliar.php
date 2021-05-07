@@ -1,6 +1,9 @@
 <?php
 
 
+function toneicID () {
+    return "t".date("y")."v".date("W");
+}
 
 function serverPhase () {
     $start_hours = 19;
