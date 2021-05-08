@@ -110,3 +110,13 @@
 #toneic .timeLeft {
     text-align: center;
 }
+
+#toneicTeamInfo {
+    margin-top: 1vh;
+    display: flex;
+    justify-content: center;
+}
+#toneicTeamInfo p {
+    margin: 0px;
+    margin-right: 2vh;
+}

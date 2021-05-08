@@ -1,4 +1,4 @@
-import ApiDB from "./apiBridge.js";
+import ApiBridge from "./apiBridge.js";
 import { SubPub } from "./subpub.js";
 
 
@@ -34,10 +34,9 @@ export const State = {
         this.updateLocal({ ...local, serverPhase });
     },
 
-
-    serverPhase: function (data) {
-        ApiDB.serverPhase(data);
-    }
+    // serverPhase: function (data) {
+    //     ApiBridge.serverPhase(data);
+    // }
 
 };
 

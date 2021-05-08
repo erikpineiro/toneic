@@ -1,35 +1,35 @@
 "use strict";
 
-import ApiDB from "../app_modules/apiBridge.js";
 import { myError } from "../app_modules/error.js";
 import { SubPub } from "../app_modules/subpub.js";
 import { State } from "../app_modules/state.js";
 import * as View from "../app_modules/views/views.js"
 import { Waiter } from "../app_modules/waiter.js";
 import auxiliarFunctions from "../app_modules/auxiliarFunctions.js";
+import ApiBridge from "../app_modules/apiBridge.js";
 
 
 // TEST
 
 // Login
-// ApiDB.login({
+// ApiBridge.login({
 //     userName: "test",
 //     password: "test",
 // });
 
 // Register
-// ApiDB.registerUser({
+// ApiBridge.registerUser({
 //     userName: auxiliarFunctions.random.string(5),
 //     password: "erik",
 //     email: auxiliarFunctions.random.string(5),
 // });
-// ApiDB.registerUser({
+// ApiBridge.registerUser({
 //     userName: "erik",
 //     password: "erik",
 //     email: "erik",
 // });
 // setTimeout(() => {
-//     ApiDB.registerUser({
+//     ApiBridge.registerUser({
 //         userName: "asdf",
 //         password: "erik",
 //         email: "erik"
@@ -49,7 +49,7 @@ import auxiliarFunctions from "../app_modules/auxiliarFunctions.js";
 // }, 500);
 
 // Register Team
-ApiDB.registerTeam({
+ApiBridge.registerTeam({
     userID: State.local.userID,
     passwordForTeam: "pss",
     token: State.local.token,
@@ -59,14 +59,23 @@ ApiDB.registerTeam({
 
 // Join Team
 
-
-
-// Access localStorage
+// Show all localStorage
 function storage(){
     // console.log({...localStorage});
     console.log(State.local);
 }
 storage();
+
+
+let __ = {
+    action: "function1",
+    payload: {
+        key1: "value1",
+        key2: 234
+    },
+};
+console.log(JSON.stringify(__));
+
 
 
 
@@ -102,6 +111,14 @@ if (typeof initData === "undefined") {
 State.updateLocal(initData);
 
 
+
+// INITIAL SERVER PHASE
+ApiBridge.serverPhase({
+
+});
+
+
+
 // INITIAL LOGIN
 if (initData.loggedIn) {
     
@@ -115,7 +132,7 @@ if (initData.loggedIn) {
 
     if (State.local.token) {
 
-        ApiDB.login({
+        ApiBridge.login({
             userName: State.local.userName,
             token: State.local.token,
             callback: (response) => { 

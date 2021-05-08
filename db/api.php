@@ -1,45 +1,15 @@
 <?php
 
-
-// $r = [
-//     "data" => "dataYO",
-//     "message" => "messageYO"
-// ];
-// send(200, $r);
-
 require_once ("dbActions.php");
 
 switch ($_SERVER["REQUEST_METHOD"]) {
 
     case "GET":
-
-
-        switch ($_GET["action"]) {
-            case "serverPhase":
-                $legitCheck = false;
-                break;
-            case "other":
-            default:
-                $legitCheck = true;
-                break;
+        if (!isset($_GET["input"])) {
+            send(200, aux_response(null, "api_no_input"));
         }
-
-        if ($legitCheck) {
-            $credentials = [
-                "userID" => $_GET["userID"],
-                "token" => $_GET["token"]
-            ];
-            if (!isUserLegit($credentials)) {
-                send(200, aux_response(null, "User credentials invalid"));
-            }
-        }
-
-        if (isset($_GET["serverPhase"])) {
-            send(200, serverPhase());
-        }
-    
+        $input = json_decode($_GET["input"], true);
         break;
-
 
     case "POST":
         $contentType = $_SERVER["CONTENT_TYPE"];
@@ -47,29 +17,46 @@ switch ($_SERVER["REQUEST_METHOD"]) {
             send(400, "Bad request (invalid content type)");
         }
         
-        // GET SENT INFO
         $input = json_decode(file_get_contents("php://input"), true);
-        
-        // All actions in dbActions.php
-        // All actions return [
-            // data => ...
-            // message => ... (can be "")
-            // ]
-        
-
-        // all POST-functions require legitCheck 
-        $input["legitCheck"] = true;
-
-        $response = bridge($input);
-        send(200, $response);
         break;
     
-
     default:
         send(405, "Method not allowed");
         break;
 }
 
+
+switch ($input["action"]) {
+    case "serverPhase":
+        $legitCheck = false;
+        break;
+    case "any other":
+    default:
+        $legitCheck = true;
+        break;
+}
+
+
+
+if ($legitCheck) {
+    $credentials = [
+        "userID" => $input["payload"]["userID"],
+        "token" => $input["payload"]["token"]
+    ];
+    if (!isUserLegit($credentials)) {
+        send(200, aux_response(null, "api_invalid_user_credentials"));
+    }
+}
+
+
+// All actions in dbActions.php
+// All actions return a response with the form: 
+//  [
+//      data => ...
+//      message => ... (can be "")
+//  ]
+$response = bridge($input);
+send(200, $response);
 
 
 

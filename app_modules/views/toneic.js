@@ -3,6 +3,7 @@ import auxiliarFunctions from "../auxiliarFunctions.js";
 import * as Components from "../components/components.js";
 import { State } from "../state.js";
 import { SubPub } from "../subpub.js";
+import { showUserInfo } from "./userInfo.js";
 
 const crosswords = JSON.parse(`{"words": [{"origin": [0,0],"direction": "h","word": "mädrid","description": {"image": null,"podcastTime": 0,"text": "Spaniens huvudstad"}},{"origin": [3, 0],"direction": "v","word": "roma","description": {"image": null,"podcastTime": 0,"text": "huvudstad i regionen Lazio och huvudort och en kommun i storstadsregionen Rom, innan 2015 provinsen Rom."}},{"origin": [2,3],"direction": "h","word": "pariser","description": {"image": null,"podcastTime": 0,"text": "Tête de veaux"}},{"origin": [5,2],"direction": "v","word": "lima","description": {"image": "image_21v17_5_2v.jpg","podcastTime": 0,"text": ""}}],"multipliers": [{"origin": [0,0],"factor": 2}]}`);
 
@@ -14,7 +15,7 @@ export function init (toneic) {
         <div id="toneicContent">
             <div id="toneicMeta">
                 <div class="timeLeft">Tävlingen avslutas kl20:00 (tid kvar:&nbsp<span></span>)</div>
-                <div class="teamInfo"></div>
+                <div id="toneicTeamInfo"></div>
             </div>
             <div class="podcast">Podcast</div>
             <div class="crosswords"></div>
@@ -49,17 +50,36 @@ export function init (toneic) {
 
     // SUBCRIPTIONS
 
-    // Team Join Success
-    SubPub.subscribe({
-        event: "event::team:join:success",
-        listener: (response) => {
-            let { teamID } = response.payload.data;
-            console.log();
+    // // Team Join Success
+    // SubPub.subscribe({
+    //     event: "event::team:join:success",
+    //     listener: (response) => {
+    //         let { teamName, changeTeam, ownTeam, teamToneics } = response.payload.data;
+            
+    //         console.log(teamName, changeTeam, ownTeam, teamToneics);
 
+    //         if (!changeTeam.new && !changeTeam.change) {
+    //             console.log("no userInfo");
+    //         } else {
+    //             console.log("yes userInfo");
+    //         }
 
+    //         let innerHTML = "";
+    //         if (ownTeam) {
+    //             innerHTML = `
+    //                 <p>Du löser det själv för tillfället.</p>
+    //                 <button>Joina ett team</button>
+    //                 `;
+    //         } else {
+    //             innerHTML = `
+    //                 <p>Du är med i ${teamName}</p>
+    //                 <button>Byt team</button>
+    //                 `;
+    //         }
+    //         toneic.querySelector("#toneicTeamInfo").innerHTML = innerHTML;
 
-        }
-    });
+    //     }
+    // });
     
 
 }

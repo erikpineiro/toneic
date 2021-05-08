@@ -237,12 +237,12 @@ export default {
         });
     },
 
-    serverPhase: function (data) {
+    serverPhase: function (data = {}) {
         let { callback } = data;
         _dbFetch({
             requestKind: "request::serverPhase",
             method: "GET",
-            vars: "?serverPhase=true",
+            parameters: ["action", "serverPhase"],
             url: API_URL,
             callback,
         });     

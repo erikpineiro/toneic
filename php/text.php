@@ -1,12 +1,27 @@
 <?php
 
 
-function a($p) { echo "a".$p; }
-function b($p) { echo "b".$p; }
+var_dump($_GET);
+$input = json_decode($_GET["data"], true);
+echo "<br>";
 
-$r = 1;
-$function = $r === 1 ? "a" : "b";
-$function("e");
+var_dump($input);
+$payload = $input["payload"];
+echo "<br>";
+
+echo $input["action"];
+echo "<br>";
+echo "key1 : ".$payload["key1"];
+echo "<br>";
+echo "key2 : ".$payload["key2"];
+
+
+// function a($p) { echo "a".$p; }
+// function b($p) { echo "b".$p; }
+
+// $r = 1;
+// $function = $r === 1 ? "a" : "b";
+// $function("e");
 
 // $toneics = [
 //     [

@@ -23,7 +23,7 @@ function bridge ($input) {
             "kind" => "user",
             "entityID" => $input["payload"]["userID"]
         ];
-        if (!entityExist($data)) {
+        if (!get_entityExist($data)) {
             return [
                 "data" => null,
                 "message" => "bridge_user_not_found"
@@ -35,7 +35,7 @@ function bridge ($input) {
             "kind" => "team",
             "entityID" => $input["payload"]["teamID"]
         ];
-        if (!entityExist($data)) {
+        if (!get_entityExist($data)) {
             return [
                 "data" => null,
                 "message" => "bridge_team_not_found"
@@ -53,7 +53,55 @@ function bridge ($input) {
 }
 
 
-function entityExist($payload) {
+
+function get_serverPhase () {
+    $start_hours = 19;
+    $start_day = 5; // Friday
+    $end_day = 7; // Sunday;
+    $duration_ready = 30; // minutes
+    
+    $now_hours = intval(date("H"));
+    $now_mins = intval(date("i"));
+    $now_secs = intval(date("s"));
+
+    $phase = "phase::Toneic";
+
+    if (date("w") < $start_day) {
+        
+        $phase = "phase::Relax";
+
+    } else if (date("w") === $start_day) {
+        
+        if ($now_hours < $start_hours ) {
+            
+            $phase = "phase::Relax";
+
+            if ( $now_hours === $start_hours - 1 && $now_mins > 60 - $duration_ready ) {
+                $phase = "phase::Ready";
+                $timeLeft = (60 - $now_mins) * 60 - $now_secs;
+            }
+
+        }
+        
+    }
+
+    if (date("w") === $end_day && $now_hours === 23 && $now_mins > 30) {
+        $timeLeft = (60 - $now_mins) * 60 - $now_secs;
+    }
+   
+    return [
+        // "phase" => $phase,
+        "phase" => "phase::Toneic",
+        // "timeLeft" => $timeLeft,
+        "timeLeft" => 345,
+        "startDay" => $start_day,
+        "startHour" => $start_hours,
+        "endDay" => $end_day,
+        "toneicID" => toneicID()
+    ];
+}
+
+function get_entityExist($payload) {
 
     if (!$payload) return false;
 
@@ -207,11 +255,10 @@ function user_joinTeam($payload){
     $teamID = $payload["teamID"];
     $passwordForTeam = $payload["passwordForTeam"];
 
-
-    // Does team exist?
-
-    
-    $responseData = ["teamID" => $teamID];
+    $responseData = [
+        "ownTeam" => !!$payload["ownTeam"],
+        "teamID" => $teamID
+    ];
     $responseMessage = "team_credentials_invalid";
 
 
@@ -228,12 +275,13 @@ function user_joinTeam($payload){
         }
     }
 
+
     // Get info about user's toneics (all history)
     $userData = getFileContents(aux_filePathFromUserID($userID));
     $userToneics = $userData["toneics"];
 
 
-    // Eventually: Remove other teams for this toneic. User only be in one team at the time
+    // If necessary: Remove other teams for this toneic. User only be in one team at the time
     $index = array_search(toneicID(), array_column($userToneics, 'toneicID'));
     $changeTeam = [
         "change" => false,
@@ -280,10 +328,13 @@ function user_joinTeam($payload){
     }
 
 
-    // If all ok, make sure that team has info about this toneic.
-    // Team could have info already if another user joined for this toneic earlier.
+    // If all ok, get team data
     if ($responseData["joined"]) {
+
         $teamData = getFileContents(aux_filePathFromTeamID($teamID));
+
+        // First make sure that team has info about this toneic.
+        // Team could have info already if another user joined for this toneic earlier.
         $teamToneics = $teamData["toneics"];
         if (array_search(toneicID(), array_column($teamToneics, 'toneicID')) === false) {
 
@@ -305,6 +356,11 @@ function user_joinTeam($payload){
         } else {
             $message .= ", team_toneic_already_in_place";
         }
+
+        // Add data to response
+        $responseData["teamName"] = $teamData["teamName"];
+        $responseData["teamToneics"] = $teamData["toneics"];
+
     }
 
 
