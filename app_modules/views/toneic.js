@@ -54,7 +54,7 @@ export function init (toneic) {
                 toneicID: response.payload.data.toneicID,
             });
 
-            ApiBridge.latestCorsswordActions({
+            ApiBridge.crosswordsLatestActions({
                 toneicID: response.payload.data.toneicID,
             });
 

@@ -36,7 +36,7 @@ export default {
         });         
     },
 
-    latestCorsswordActions: function (data) {
+    crosswordsLatestActions: function (data) {
 
         let { toneicID, callback } = data; 
 
@@ -63,15 +63,43 @@ export default {
         });        
                
     },
+    crosswordsNewAction: function (data) {
+        
+        console.log(data);
+        let { toneicID, origin, value, callback } = data;
+
+        if (!State.local.token || !State.local.userID) {
+            console.log("no_updates_possible_for_user_not_loggedIn");
+            callback && callback({
+                success: true,
+                payload: {data: {updated: true}}
+            })
+            return;
+        }
+
+        let userID = State.local.userID;
+        let token = State.local.token;
+
+        _dbFetch({
+            requestKind: "request::crosswords:newAction",
+            method: "POST",
+            url: API_URL,
+            body: JSON.stringify({ action: "crosswords_newAction", payload: {userID, token, toneicID, origin, value} }),
+            callback: (response) => {
+                callback && callback(response);
+            }
+        });        
+        
+    },
 
 
-    doesEntityExist: function (data) {
+    entityExists: function (data) {
         let { entity, key, value } = data;
 
         if ( entity === undefined || key === undefined || value === undefined ) { myError.throw(); }
 
         _dbFetch({
-            requestKind: "request::doesEntityExist",
+            requestKind: "request::entityExists",
             method: "GET",
             url: API_URL,
             parameters: [["entity", entity], [key, value]],
@@ -104,28 +132,12 @@ export default {
             }
         });
     },
-
     joinOwnTeam: function (data = {}) {
 
         let { callback } = data;
-        let userID = State.local.userID;
-        let token = State.local.token;
-        console.log("Join Own Team Started", userID, token);
+        console.log("Join Own Team Started");
+        this.joinTeam({ teamID: null, teamName: null, callback });
 
-        _dbFetch({
-            requestKind: "request::joinTeam",
-            method: "POST",
-            url: API_URL,
-            body: JSON.stringify({ action: "user_joinOwnTeam", payload: {userID, token} }),
-            callback: (response) => {
-                let event = (response.success && response.payload.data.joined) ? "event::team:join:success" : "event::team:join:failed";
-                SubPub.publish({
-                    event,
-                    detail: response
-                });
-                callback && callback(response);
-            }
-        });
     },
 
     login: function (data = {}) {
@@ -165,14 +177,13 @@ export default {
             });
         }
     },
-
     logout: function () {
         let userName = State.local.userName;
         if (userName) {
             State.updateLocal({ token: "" });
             console.log(State.local);
             SubPub.publish({
-                event: "event::logout:success"
+                event: "event::user:logout:success"
             })
         }
     },
@@ -225,7 +236,6 @@ export default {
             });
         }        
     },
-
     registerTeam: function (data) {
 
         console.log("Register Team Started", data);
@@ -289,34 +299,6 @@ export default {
 
     },
 
-    updateCrosswords: function (data) {
-        
-        console.log(data);
-        let { toneicID, origin, value, callback } = data;
-
-        if (!State.local.token || !State.local.userID) {
-            console.log("no_updates_possible_for_user_not_loggedIn");
-            callback && callback({
-                success: true,
-                payload: {data: {updated: true}}
-            })
-            return;
-        }
-
-        let userID = State.local.userID;
-        let token = State.local.token;
-
-        _dbFetch({
-            requestKind: "request::toneic:update",
-            method: "POST",
-            url: API_URL,
-            body: JSON.stringify({ action: "toneic_update", payload: {userID, token, toneicID, origin, value} }),
-            callback: (response) => {
-                callback && callback(response);
-            }
-        });        
-        
-    },
 }
 
 
@@ -434,10 +416,10 @@ function _newResponse(response){
             break;
 
         case "request::toneic:load":
-        case "request::toneic:update":
+        case "request::crosswords:newAction":
         case "request::register:team":
         case "request::joinTeam":
-        case "request::doesEntityExist":
+        case "request::entityExists":
         case "request::serverPhase":
         case "request::login":
         case "request::register:user":

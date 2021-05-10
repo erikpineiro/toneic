@@ -22,21 +22,6 @@ export function init (menu) {
     menu.querySelector("#menuLogout").classList.add("invisible");
     menu.querySelector("#menuJoinTeam").classList.add("invisible");
 
-    // if (State.local.loggedIn) {
-    //     menu.querySelector("#menuLogin").classList.add("invisible");
-    // } else {
-    //     menu.querySelector("#menuLogout").classList.add("invisible");
-    // }    
-
-
-    // switch (State.local.serverPhase.phase) {
-
-    //     case "phase::Relax":
-    //         menu.querySelector("#menuToneic").style.display = "none";
-    //         break;
-
-    // }
-
 
     // SUBSCRIPTIONS
     menu.subscribe({
@@ -57,7 +42,7 @@ export function init (menu) {
     });
 
     SubPub.subscribe({
-        event: "event::logout:success",
+        event: "event::user:logout:success",
         listener: (response) => {
             menu.querySelector("#menuLogout").classList.add("invisible");
             menu.querySelector("#menuLogin").classList.remove("invisible");
@@ -73,41 +58,8 @@ export function init (menu) {
         }
     });
 
-    // // Team Join Success
-    // SubPub.subscribe({
-    //     event: "event::team:join:success",
-    //     listener: (response) => {
-    //         let { teamName, changeTeam, ownTeam, teamToneics } = response.payload.data;
-            
-    //         console.log(teamName, changeTeam, ownTeam, teamToneics);
 
-    //         if (!changeTeam.new && !changeTeam.change) {
-    //             console.log("no userInfo");
-    //         } else {
-    //             console.log("yes userInfo");
-    //         }
-
-    //         let innerHTML = "";
-    //         if (ownTeam) {
-    //             innerHTML = `
-    //                 <p>Du löser det själv för tillfället.</p>
-    //                 <button>Joina ett team</button>
-    //                 `;
-    //         } else {
-    //             innerHTML = `
-    //                 <p>Du är med i ${teamName}</p>
-    //                 <button>Byt team</button>
-    //                 `;
-    //         }
-    //         toneic.querySelector("#toneicTeamInfo").innerHTML = innerHTML;
-
-    //     }
-    // });
-    
-
-
-
-    // BUTTON ACTIONS
+    // CLICKS
     menu.querySelectorAll("button").forEach( b => {
         b.click({
             callback: () => {

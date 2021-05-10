@@ -59,6 +59,8 @@ import ApiBridge from "../app_modules/apiBridge.js";
 
 // Join Team
 
+
+
 // Show all localStorage
 function storage(){
     // console.log({...localStorage});
@@ -100,7 +102,7 @@ View.UserInfo.init(document.querySelector("#userInfo"));
 
 // INITIAL SERVER PHASE
 ApiBridge.serverPhase({
-    callback: (response) => {}
+    callback: null
 });
 
 
@@ -111,6 +113,10 @@ if (State.local.token) {
         userName: State.local.userName,
         token: State.local.token,
         callback: (response) => {
+            console.log(response);
+            if (response.payload.data.joinedTeamID !== null) {
+                ApiBridge.joinTeam({teamID: response.payload.data.joinedTeamID});
+            }
             Waiter.hasHappened("thing::login:tried");
         }
     });

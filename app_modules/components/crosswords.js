@@ -50,7 +50,7 @@ export class Crosswords {
 
             let value = char === "clear" ? "" : char;
 
-            ApiBridge.updateCrosswords({
+            ApiBridge.crosswordsNewAction({
                 toneicID: this.toneicID,
                 origin: cellUpdating.data.origin,
                 value,

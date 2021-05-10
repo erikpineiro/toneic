@@ -2,19 +2,10 @@
     "teamID": "t0000001",
     "teamName": "babas",
     "password": "asdfasdf",
-    "email": "er@sad.se",
+    "email": "er@asd.se",
     "allowedUsers": [
-        "u0000002"
+        "u0000001"
     ],
-    "toneics": [
-        {
-            "toneicID": "t21v18",
-            "actions": []
-        },
-        {
-            "toneicID": "t21v19",
-            "actions": []
-        }
-    ],
+    "toneics": [],
     "points": 0
 }

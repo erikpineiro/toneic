@@ -191,6 +191,63 @@ function toneic_latestActions ($payload) {
     return aux_response($responseData, $responseMessage);
 
 }
+function crosswords_newAction ($payload) {
+
+    $toneicID = $payload["toneicID"];
+    $userID = $payload["userID"];
+
+
+    // Find the team that this user has joined for that toneic
+    $toneic = aux_getUserToneic($userID, $toneicID);
+    if ($toneic === null) {
+        return aux_response(["updated" => false], "problems_with_users_toneic");
+    }
+    $teamID = $toneic["teamID"];
+
+
+    // Make sure that team has an object for this toneic.
+    // Team could have toneic already if another user joined for this toneic earlier.
+    $filePathTeam = aux_filePathFromUserID($teamID);
+    $teamData = getFileContents($filePathTeam);
+    var_dump($filePathTeam);
+    var_dump($teamData);
+    $teamToneics = $teamData["toneics"];
+    if (array_search($toneicID, array_column($teamToneics, 'toneicID')) === false) {
+        $teamToneics[] = [
+            "toneicID" => toneicID(),
+            "actions" => []
+        ];
+        $teamUpdate = [ "toneics" => $teamToneics ];
+        $teamUpdate = aux_update($filePathTeam, $teamUpdate);
+        
+        // ... TO DO... what if update didnt go well?
+        $teamData = getFileContents($filePathTeam);
+        $teamToneics = $teamData["toneics"];
+        $message .= $teamUpdate ? ", team_toneic_created_success" : ", team_toneic_created_failed";
+
+    } else {
+        $message .= ", team_toneic_already_in_place";
+    }
+
+    // Update the action
+    $index = array_search($toneicID, array_column($teamToneics, 'toneicID'));
+    if ($index === false) {
+        return aux_response(["updated" => false], "update_no_such_toneic");
+    } else {
+        $toneic = $teamToneics[$index];
+        $actions = $toneic["actions"];
+        $actions[] = $action;
+        $toneic["actions"] = $actions;
+
+        // Remove the toneic with the old actions in ordet to place new one
+        array_splice($teamToneics, $index, 1);
+        $teamToneics[] = $toneic;
+        $update = [ "toneics" => $teamToneics ];
+        aux_update($filePathTeam, $update);
+
+        return aux_response(["updated" => true], "alles_gut");
+    }    
+}
 
 
 function team_register ($payload) {
@@ -238,35 +295,31 @@ function team_editLetter(){}
 
 function user_login ($payload) {
 
-    $_SESSION["userData"] = ["loggedIn" => false];
-    $_SESSION["loggedIn"] = false;
-    $message = "";
+    $responseData = ["loggedIn" => false];
+    $responseMessage = "";
 
     $userFileName = aux_fileNameFromUserName($payload["userName"]);
     if ($userFileName === null) {
-        $message = "login_no_such_user_in_DB";
+        $responseMessage = "login_no_such_user_in_DB";
     } else {
         if (aux_isUserLegit($payload)) {
-            $update = [
-                "token" => randomToken(),
-                "loggedIn" => true
-            ];
-    
-            $_SESSION["userData"] = aux_update($userFileName, $update);
-            if ($_SESSION["userData"]) {
-                if (isset($_SESSION["userData"]["password"])) {
-                    unset($_SESSION["userData"]["password"]);
-                }
-                $_SESSION["loggedIn"] = true;
+
+            $update = [ "token" => randomToken() ];
+            $responseData = aux_update($userFileName, $update);
+
+            if ($responseData) {
+                unset($responseData["password"]);
+                $responseData["loggedIn"] = true;
             } else {
                 $message = "login_updating_problems";
             }
+
         } else {
             $message = "login_invalid_credentials";
         }
     }
     
-    return aux_response($_SESSION["userData"], $message);
+    return aux_response($responseData, $message);
     
 }
 function user_register ($payload) {
@@ -275,94 +328,110 @@ function user_register ($payload) {
     $password = $payload["password"];
     $email = $payload["email"];
 
-    $response = [
-        "data" => [ "registered" => false ],
-        "message" => null,
-    ];
+    $responseData = [ "registered" => false ];
+    $responseMessage = "";
 
     if (aux_searchAmongUsers("userName", $userName) === null) {
         
         // Email in use?
         if (aux_searchAmongUsers("email", $email) !== null) {
          
-            $response["message"] = "email_in_use";
+            $responseMessage = "email_in_use";
 
         } else {
 
-            $response["data"] = [
-                "userID" => aux_newID("user"),
+            $userID = aux_newID("user");
+
+            // Register Own Team. All users must have own team.
+            // Throw away the return
+            team_register([
+                "userID" => $userID,
+                "teamName" => null,
+                "teamID" => aux_OwnTeamIDFromUserID($userID),
+                "password" => "xxoo",
+                "email" => $email,
+            ]);
+
+            $responseData = [
+                "userID" => $userID,
                 "userName" => $userName,
                 "password" => $password,
                 "token" => randomToken(13),
                 "email" => $email,
-                "latestTeamName" => null,
+                "joinedTeamID" => null,
+                "joinedTeamName" => null,
                 "toneics" => [],
                 "points" => 0        
             ];
 
-            putFileContents(USERS_DIRECTORY."/".$response["data"]["userID"].".json", $response["data"]);
+            putFileContents(USERS_DIRECTORY."/".$userID.".json", $responseData);
 
-            unset($response["data"]["password"]);
-            $response["data"]["registered"] = true;
-
-
-            // Register Own Team. All users have own team.
-            // Throw away the return
-            team_register([
-                "userID" => $response["data"]["userID"],
-                "teamName" => aux_OwnTeamIDFromUserID($response["data"]["userID"]),
-                "teamID" => aux_OwnTeamIDFromUserID($response["data"]["userID"]),
-                "password" => "xxoo",
-                "email" => $email,
-            ]);
+            unset($responseData["password"]);
+            $responseData["registered"] = true;
+            $responseMessage = "alles_gut";
                 
         }
 
     } else {
 
-        $response["message"] = "userName_in_use";
+        $responseMessage = "userName_in_use";
 
     }
 
-    return $response;
+    return aux_response($responseData, $responseMessage);
 }
 function user_joinTeam($payload){
 
+    $responseDataNotJoined = ["joined" => false];
+    
+    // Check
+    if (!array_key_exists("teamID", $payload) && !array_key_exists("teamName", $payload)) {
+        return aux_response($responseDataNotJoined, "join_invalid_request");
+    }
+    
     $userID = $payload["userID"];
     $teamID = $payload["teamID"];
+    $teamName = $payload["teamName"];
     $passwordForTeam = $payload["passwordForTeam"];
 
-    if (!$teamID) {
+    $ownTeam = $teamID === null && $teamName === null;
+
+    if (!$ownTeam && !$teamID) {
         $teamID = aux_teamIDfromTeamName($payload["teamName"]);
         if (!$teamID) {
-            return aux_response(null, "no_such_team_name");
+            return aux_response($responseDataNotJoined, "no_such_team_name");
+        }
+    }
+
+    $filePathTeam = $ownTeam ? aux_filePathFromTeamID(aux_OwnTeamIDFromUserID($userID)) : aux_filePathFromTeamID($teamID);
+    $teamData = getFileContents($filePathTeam);
+    
+
+    // Access to team?
+    if (!$ownTeam) {
+        if (!in_array($userID, $teamData["allowedUsers"], true)) {
+            $credentials = [
+                "fileName" => aux_filePathFromTeamID($teamID),
+                "password" => $passwordForTeam
+            ];
+            if (!aux_checkCredentials($credentials)) {
+                return aux_response($$responseDataNotJoined, "team_credentials_invalid");
+            }
         }
     }
 
 
+    // Init responseData
     $responseData = [
-        "ownTeam" => !!$payload["ownTeam"],
-        "teamID" => $teamID
+        "ownTeam" => $ownTeam,
+        "teamID" => $teamID,
+        "teamName" => $teamData["teamName"],
     ];
 
 
-    // User allowed to join?
-    $teamData = getFileContents(aux_filePathFromTeamID($teamID));
-    if (!in_array($userID, $teamData["allowedUsers"], true)) {
-        $credentials = [
-            "fileName" => aux_filePathFromTeamID($teamID),
-            "password" => $passwordForTeam
-        ];
-        if (!aux_checkCredentials($credentials)) {
-            $responseData["joined"] = false;
-            return aux_response($responseData, "team_credentials_invalid");
-        }
-    }
-
-
     // Get info about user's toneics (all history)
-    $userData = getFileContents(aux_filePathFromUserID($userID));
-    $userToneics = $userData["toneics"];
+    $filePathUser = aux_filePathFromUserID($userID);
+    $userToneics = getFileContents($filePathUser)["toneics"];
 
 
     // If necessary: Remove other teams for this toneic. User only be in one team at the time
@@ -394,10 +463,12 @@ function user_joinTeam($payload){
             "lastAction" => 0,
         ];
         $userUpdate = [
+            "joinedTeamID" => $teamID,
+            "joinedTeamName" => $teamID ? $teamData["teamName"] : null,
             "toneics" => $userToneics
         ];
 
-        $userUpdate = aux_update(aux_filePathFromUserID($userID), $userUpdate);
+        $userUpdate = aux_update($filePathUser, $userUpdate);
 
         // Check result of update
         if ($userUpdate) {
@@ -414,61 +485,33 @@ function user_joinTeam($payload){
     }
 
 
-    // If all ok, get & save team data
-    if ($responseData["joined"]) {
+    // // Check that team has an object for this toneic
+    // // All teams should have an object for all toneics, not a problem if not used
+    // // Team could have info already if another user joined for this toneic earlier.
+    // $teamToneics = $teamData["toneics"];
+    // if (array_search(toneicID(), array_column($teamToneics, 'toneicID')) === false) {
 
-        $teamData = getFileContents(aux_filePathFromTeamID($teamID));
+    //     $teamToneics[] = [
+    //         "toneicID" => toneicID(),
+    //         "actions" => []
+    //     ];
+    //     $teamUpdate = [
+    //         "toneics" => $teamToneics
+    //     ];
 
-        // First make sure that team has info about this toneic.
-        // Team could have info already if another user joined for this toneic earlier.
-        $teamToneics = $teamData["toneics"];
-        if (array_search(toneicID(), array_column($teamToneics, 'toneicID')) === false) {
+    //     $teamUpdate = aux_update(aux_filePathFromTeamID($teamID), $teamUpdate);
 
-            // Prepare
-            $teamToneics[] = [
-                "toneicID" => toneicID(),
-                "actions" => []
-            ];
-            $teamUpdate = [
-                "toneics" => $teamToneics
-            ];
+    //     // ... TO DO... what if update didnt go well?
+    //     $message .= $teamUpdate ? ", team_toneic_created_success" : ", team_toneic_created_failed";
 
-            // Update
-            $teamUpdate = aux_update(aux_filePathFromTeamID($teamID), $teamUpdate);
+    // } else {
 
-            // Check update went well
-            // ... TO DO... what if it didn't?
-            $message .= $teamUpdate ? ", team_toneic_created_success" : ", team_toneic_created_failed";
-        } else {
-            $message .= ", team_toneic_already_in_place";
-        }
+    //     $message .= ", team_toneic_already_in_place";
+        
+    // }
 
-        // Add data to response
-        $responseData["teamName"] = $teamData["teamName"];
-        $responseData["teamToneics"] = $teamData["toneics"];
-
-
-        // Save teamName in user (if not own team)
-        // Don't save teamID, that is only for the team for the current toneic
-        if (!$payload["ownTeam"]) {
-            $userUpdate = [
-                "latestTeamName" => $responseData["teamName"],
-            ];
-            aux_update(aux_filePathFromUserID($userID), $userUpdate);
-        }
-    }
-
-
-    // Response
     return aux_response($responseData, $responseMessage);
 }
-function user_joinOwnTeam ($payload) {
-    $payload["ownTeam"] = true;
-    $payload["teamID"] = aux_OwnTeamIDFromUserID($payload["userID"]);
-    return user_joinTeam($payload);
-}
-function user_enlistTeam(){}
-function user_doToneic(){}
 
 
 
@@ -591,6 +634,55 @@ function aux_update ($fileName, $update) {
     if (isset($data["password"])) unset($data["password"]);
 
     return $data;
+}
+function aux_getUserToneic ($userID, $toneicID) {
+    $filePathUser = aux_filePathFromUserID($userID);
+    $userData = getFileContents($filePathUser);
+    $userToneics = $userData["toneics"];
+    $index = array_search($toneicID, array_column($userToneics, 'toneicID'));
+
+    if ($index === false) {
+        return aux_createUserToneic ($userID, $toneicID, $userData["joinedTeamID"]);
+    } else {
+        return $userToneics[$index];
+    }
+}
+function aux_createUserToneic ($userID, $toneicID, $teamID) {
+
+    $filePathUser = aux_filePathFromUserID($userID);
+    $userData = getFileContents($filePathUser);
+    $userToneics = $userData["toneics"];
+    $index = array_search($toneicID, array_column($userToneics, 'toneicID'));
+
+    // Remove it if it already exists: User has changed teams and needs a new Toneic
+    if ($index !== false) {
+        array_splice($userToneics, $index, 1);
+    }
+    
+    $newToneic = [
+        "toneicID" => $toneicID,
+        "teamID" => $teamID,
+        "lastAction" => 0,
+    ];
+    $userToneics[] = $newToneic;
+
+    // Update also joinedTeamName and joinedTeamID
+    $filePathTeam = $teamID === null ? aux_filePathFromTeamID(aux_OwnTeamIDFromUserID($userID)) : aux_filePathFromTeamID($teamID);
+    $teamData = getFileContents($filePathTeam);
+    $userUpdate = [
+        "joinedTeamID" => $teamID,
+        "joinedTeamName" => $teamID ? $teamData["teamName"] : null,
+        "toneics" => $userToneics
+    ];
+
+    $userUpdate = aux_update($filePathUser, $userUpdate);
+
+    // Check result of update
+    if ($userUpdate) {
+        return $newToneic;
+    } else {
+        return null;
+    }
 }
 
 

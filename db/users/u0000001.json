@@ -1,16 +1,22 @@
 {
     "userID": "u0000001",
-    "userName": "erik",
-    "password": "kasdasd",
-    "token": "F5nGDWQDH0Yy1",
-    "email": "erik@sdf.se",
-    "latestTeamName": null,
+    "userName": "lisa",
+    "password": "asdasd",
+    "token": "d1Ytak4aWVB8p",
+    "email": "lisa@er.er",
+    "joinedTeamID": null,
+    "joinedTeamName": null,
     "toneics": [
         {
-            "toneicID": "t21v18",
-            "teamID": "t_u0000001"
+            "toneicID": "21v18",
+            "teamID": "t0000001",
+            "lastAction": 0
+        },
+        {
+            "toneicID": "t21v19",
+            "teamID": null,
+            "lastAction": 0
         }
     ],
-    "points": 0,
-    "loggedIn": true
+    "points": 0
 }

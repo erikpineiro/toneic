@@ -14,9 +14,11 @@ export function init (loginReg) {
         <div id="joinForm">
             <form class="visible">
                 <input id="inputJoinTeamName" type="text" placeholder="Lagets Namn" required>
+                <p class="feedback">feedback</p>
                 <input id="inputJoinPassword" type="password" placeholder="Lagets Lösenord (inte ditt!)" required>
                 <p class="feedback">feedback</p>
                 <input type="submit" value="Joina">
+                <p class="feedback">feedback</p>
                 <p id="linkForgotTeam" class="link">Glömt teamets lösenord?</p>
                 <p id="linkToRegisterTeam" class="link">Registrera ett nytt lag</p>
             </form>
@@ -315,8 +317,8 @@ export function init (loginReg) {
                 showUserInfo({
                     innerHTML: `Hej ${userName}!
                                 <br>
-                                Du har nu joinat ${teamName}
-                                <br>
+                                Du är med i ${teamName}.
+                                <br><br>
                                 Bästa laget någonsin!
                                 `
                 });    
@@ -324,8 +326,34 @@ export function init (loginReg) {
 
             hideCover({cover: "loginRegisterJoin"});
         }
-    })
+    });
 
+        // event::team:join:failed
+        SubPub.subscribe({
+            event: "event::team:join:failed",
+            listener: (response) => {
+                let message = response.success ? response.payload.message : response.message;
+                console.log(message);
+                let feedback = loginReg.querySelector("#joinForm input[type=submit]+.feedback");
+                switch (message) {
+                    case "no_such_team_name":
+                        feedback = loginReg.querySelector("#inputJoinTeamName+.feedback");
+                        message = "Det verkar inte finnas något lag med det namnet";
+                        break;
+                    case "team_credentials_invalid":
+                        feedback = loginReg.querySelector("#inputJoinPassword+.feedback");
+                        message = "Detta är inte lagets lösenord";
+                        break;
+                    case "invalid_request":
+                    default:
+                        message = "Något strular... kan du försöka igen?"
+                        break;
+                }
+
+                feedback.textContent = message;
+                feedback.classList.add("visible");
+            }
+        });
 }
 
 export function showLoginRegisterJoin (data) {
@@ -350,14 +378,14 @@ export function showLoginRegisterJoin (data) {
 
 function resetUserRegister () {
     document.querySelectorAll(`#registerUserForm input:not([type="submit"])`).forEach( input => input.value = "");
-    document.querySelectorAll(`#registerUserForm input ~ .feedback)`).forEach( feedback => {
+    document.querySelectorAll(`#registerUserForm input +.feedback`).forEach( feedback => {
         feedback.textContent = "feedback";
         feedback.classList.remove("visible");
     });
 }
 function resetTeamRegister () {
     document.querySelectorAll(`#registerTeamForm input:not([type="submit"])`).forEach( input => input.value = "");
-    document.querySelectorAll(`#registerTeamForm input ~ .feedback)`).forEach( feedback => {
+    document.querySelectorAll(`#registerUserForm input +.feedback`).forEach( feedback => {
         feedback.textContent = "feedback";
         feedback.classList.remove("visible");
     });

@@ -14,7 +14,11 @@ export function init(header) {
             <div class="image"></div>
             <div class="text">TONEIC&nbsp<span></span></div>
         </div>
-        <div class="userLine"><button class="invisible"></button><span class="team invisible"></span><span class="user">Ej inloggad</span></div>
+        <div class="userLine">
+            <button class="invisible">Joina ett lag</button>
+            <span class="team invisible"> - <span></span> - </span>
+            <span class="user">Ej inloggad</span>
+        </div>
         <div class="hamburger">
             <div></div>
             <div></div>
@@ -26,6 +30,8 @@ export function init(header) {
     let userHtml = header.querySelector(".userLine .user");
     let teamHtml = header.querySelector(".userLine .team");
     let hamburgerHtml = header.querySelector(".hamburger");
+    let buttonHtml = header.querySelector(".userLine button");
+
 
     
     // Hamburger
@@ -54,13 +60,16 @@ export function init(header) {
         listener: (response) => {
             let userName = response.payload.data.userName;
             userHtml.textContent = userName;
+
+            buttonHtml.classList.remove("invisible");
         }
     });
 
     SubPub.subscribe({
-        event: "event::logout:success",
+        event: "event::user:logout:success",
         listener: (response) => {
             userHtml.textContent = "Ej inloggad";
+            buttonHtml.classList.add("invisible");
         }
     });
 
@@ -89,16 +98,17 @@ export function init(header) {
     SubPub.subscribe({
         event: "event::team:join:success",
         listener: (response) => {
-            let { ownTeam, teamName } = response.payload.data;
-            let buttonHtml = header.querySelector(".userLine button");
-            buttonHtml.classList.remove("invisible");
+            let { teamName } = response.payload.data;
 
-            let buttonText = ownTeam ? "Joina ett lag" : "Byt lag";
+            let buttonText = teamName ? "Byt lag" : "Joina ett lag";
             buttonHtml.textContent = buttonText;
 
-            if (!ownTeam) {
+            if (teamName) {
                 teamHtml.classList.remove("invisible");
-                teamHtml.textContent = `(${teamName})`;
+                teamHtml.querySelector("span span").textContent = `${teamName}`;
+            } else {
+                teamHtml.classList.add("invisible");
+                teamHtml.querySelector("span span").textContent = ``;
             }
         }
     });    

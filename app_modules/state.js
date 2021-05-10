@@ -35,8 +35,8 @@ export const State = {
 SubPub.subscribe({
     event: "event::user:login:success",
     listener: function (response) {
-        let { userName, userID, token, toneics } = response.payload.data;
-        State.updateLocal(response.payload.data);
+        let { userName, userID, token, toneics, joinedTeamID, joinedTeamName } = response.payload.data;
+        State.updateLocal({ userName, userID, token, toneics, joinedTeamID, joinedTeamName });
     }
 });
 
@@ -63,8 +63,8 @@ SubPub.subscribe({
     listener: (response) => {
         let { teamName, teamID } = response.payload.data;
         State.updateLocal({ 
-            currentTeamID: teamID,
-            latestTeamName: teamName
+            joinedTeamID: teamID,
+            joinedTeamName: teamName
         });
     }
 });

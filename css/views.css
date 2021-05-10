@@ -37,12 +37,12 @@
 
 
 /* HOME */
-#hero {
+#homeHero {
     font-family: var(--ft1);
     font-size: 2vh;
     text-align: center;
 }
-#hero p {
+#homeHero p {
     margin: 1vh;
 }
 
@@ -54,14 +54,11 @@
 #home .wideButton:not(:first-child) {
     margin-top: var(--marginTopMainButtons);
 }
+#home .wideButton.joinRegister {
+    background-color: var(--cTeamButtons);
+}
 
-#teamButtons {
-    margin-top: var(--marginTopMainButtons);
-}
-#teamButtons .joinRegister {
-    background-color: wheat;
-}
-#teamButtons #latestTeam span {
+#homeButtonSolveTeam span {
     font-weight: 700;
 }
 
