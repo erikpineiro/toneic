@@ -58,6 +58,12 @@
 #teamButtons {
     margin-top: var(--marginTopMainButtons);
 }
+#teamButtons .joinRegister {
+    background-color: wheat;
+}
+#teamButtons #latestTeam span {
+    font-weight: 700;
+}
 
 
 

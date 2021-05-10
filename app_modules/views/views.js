@@ -82,5 +82,5 @@ export * as Home from "./home.js";
 export * as Toneic from "./toneic.js";
 export * as Header from "./header.js";
 export * as Menu from "./menu.js";
-export * as LoginRegister from "./loginRegister.js";
+export * as LoginRegisterJoin from "./loginRegisterJoin.js";
 export * as UserInfo from "./userInfo.js";

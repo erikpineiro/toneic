@@ -39,7 +39,7 @@ import ApiBridge from "../app_modules/apiBridge.js";
 // Open Login
 // setTimeout(() => {
 //     SubPub.publish({
-//         event: "event::login:openForm",
+//         event: "event::user:login:openForm",
 //     });
 // }, 500);
 
@@ -49,13 +49,13 @@ import ApiBridge from "../app_modules/apiBridge.js";
 // }, 500);
 
 // Register Team
-ApiBridge.registerTeam({
-    userID: State.local.userID,
-    passwordForTeam: "pss",
-    token: State.local.token,
-    teamName: "Bobinas",
-    email: State.local.email,
-});
+// ApiBridge.registerTeam({
+//     userID: State.local.userID,
+//     passwordForTeam: "pss",
+//     token: State.local.token,
+//     teamName: "Bobinas",
+//     email: State.local.email,
+// });
 
 // Join Team
 
@@ -65,20 +65,6 @@ function storage(){
     console.log(State.local);
 }
 storage();
-
-
-let __ = {
-    action: "function1",
-    payload: {
-        key1: "value1",
-        key2: 234
-    },
-};
-console.log(JSON.stringify(__));
-
-
-
-
 
 
 
@@ -102,62 +88,35 @@ setTimeout(() => { Waiter.hasHappened("thing::a:bit:of:logo"); }, 1000);
 
 
 
-// INIT DATA
-if (typeof initData === "undefined") {
-    myError.throw();
-}
-
-// Update serverPhase, etc
-State.updateLocal(initData);
-
-
-
-// INITIAL SERVER PHASE
-ApiBridge.serverPhase({
-
-});
-
-
-
-// INITIAL LOGIN
-if (initData.loggedIn) {
-    
-    SubPub.publish({
-        event: "event::login:success",
-        detail: initData.userData
-    })
-    Waiter.hasHappened("thing::login:tried");
-
-} else {
-
-    if (State.local.token) {
-
-        ApiBridge.login({
-            userName: State.local.userName,
-            token: State.local.token,
-            callback: (response) => { 
-                console.log(response);
-                Waiter.hasHappened("thing::login:tried");
-            }
-        });
-
-    } else {
-
-        console.log("No login credentials in the state");
-        Waiter.hasHappened("thing::login:tried");
-
-    }
-
-}
-
-
 
 // Prepare views. Done while INIT is on
 View.Home.init(document.querySelector("#home"));
 View.Header.init(document.querySelector("#header"));
 View.Toneic.init(document.querySelector("#toneic"));
 View.Menu.init(document.querySelector("#menu"));
-View.LoginRegister.init(document.querySelector("#loginRegister"));
+View.LoginRegisterJoin.init(document.querySelector("#loginRegisterJoin"));
 View.UserInfo.init(document.querySelector("#userInfo"));
 
+
+// INITIAL SERVER PHASE
+ApiBridge.serverPhase({
+    callback: (response) => {}
+});
+
+
+// INITIAL LOGIN
+if (State.local.token) {
+
+    ApiBridge.login({
+        userName: State.local.userName,
+        token: State.local.token,
+        callback: (response) => {
+            Waiter.hasHappened("thing::login:tried");
+        }
+    });
+
+} else {
+    console.log("No login credentials in the state");
+    Waiter.hasHappened("thing::login:tried");
+}
 

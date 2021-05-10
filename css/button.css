@@ -5,10 +5,10 @@ button {
 
     position: relative;
     border-radius: var(--bRMainButton);
-    box-shadow: 0px 2px 2px black;
+    box-shadow: 0px 1px 2px black;
     border: none;
 
-    font-family: var(--ft1);
+    font-family: var(--ft2);
 }
 
 button.active {

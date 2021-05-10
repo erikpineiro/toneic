@@ -1,5 +1,5 @@
 {
-    "id": "21v17",
+    "toneicID": "21v18",
     "podcast": "podCastName",
     "title": "Toneic Title",
     "guests": ["Wonder Woman", "Superman"],
@@ -8,7 +8,7 @@
             {
                 "origin": [0,0],
                 "direction": "h",
-                "word": "mädrid",
+                "word": "madrid",
                 "description": {
                     "image": null,
                     "podcastTime": 0,
@@ -28,7 +28,7 @@
             {
                 "origin": [2,3],
                 "direction": "h",
-                "word": "paris",
+                "word": "parisien",
                 "description": {
                     "image": null,
                     "podcastTime": 0,

@@ -1,4 +1,5 @@
 
+import ApiBridge from "../apiBridge.js";
 import auxiliarFunctions from "../auxiliarFunctions.js";
 import * as Components from "../components/components.js";
 import { State } from "../state.js";
@@ -15,73 +16,51 @@ export function init (toneic) {
         <div id="toneicContent">
             <div id="toneicMeta">
                 <div class="timeLeft">Tävlingen avslutas kl20:00 (tid kvar:&nbsp<span></span>)</div>
-                <div id="toneicTeamInfo"></div>
             </div>
             <div class="podcast">Podcast</div>
-            <div class="crosswords"></div>
+            <div class="crosswords">Hämtar veckans Toneic...</div>
         </div>
     `;
 
     
     // Timer
-    setInterval(() => {
-        let timeLeft = State.local.serverPhase.timeLeft - 1;
-        State.updateTimeLeft(timeLeft);
-        toneic.querySelector("#toneicMeta span").textContent = auxiliarFunctions.minSecs(timeLeft);
-    }, 1000);
+    // setInterval(() => {
+    //     let timeLeft = State.local.serverPhase.timeLeft - 1;
+    //     State.updateTimeLeft(timeLeft);
+    //     toneic.querySelector("#toneicMeta span").textContent = auxiliarFunctions.minSecs(timeLeft);
+    // }, 1000);
 
     
 
-    // Get the crosswords
-    // Api.getCrosswords({
-    //     id: 
-    // });
-    // Crosswords come here without the solution but with the length of each word
-    // Fix that while testing
-    crosswords.words.forEach( word => {
-        word.length = word.word.length;
-        delete word.word;
+    SubPub.subscribe({
+        event: "event::serverPhase:success",
+        listener: (response) => {
+            if (response.success && response.payload.data.phase === "phase::Toneic") {
+                ApiBridge.loadToneic({
+                    toneicID: State.local.currentToneicID,
+                    archive: false,
+                });            
+            }
+        }
+    })
+
+    SubPub.subscribe({
+        event: "event::toneic:load:success",
+        listener: (response) => {
+
+            new Components.Crosswords({
+                element: toneic.querySelector(".crosswords"),
+                crosswords: response.payload.data.crosswords,
+                toneicID: response.payload.data.toneicID,
+            });
+
+            ApiBridge.latestCorsswordActions({
+                toneicID: response.payload.data.toneicID,
+            });
+
+        }
     });
-    new Components.Crosswords({
-        element: toneic.querySelector(".crosswords"),
-        crosswords
-    });
-    
-
-    // SUBCRIPTIONS
-
-    // // Team Join Success
-    // SubPub.subscribe({
-    //     event: "event::team:join:success",
-    //     listener: (response) => {
-    //         let { teamName, changeTeam, ownTeam, teamToneics } = response.payload.data;
-            
-    //         console.log(teamName, changeTeam, ownTeam, teamToneics);
-
-    //         if (!changeTeam.new && !changeTeam.change) {
-    //             console.log("no userInfo");
-    //         } else {
-    //             console.log("yes userInfo");
-    //         }
-
-    //         let innerHTML = "";
-    //         if (ownTeam) {
-    //             innerHTML = `
-    //                 <p>Du löser det själv för tillfället.</p>
-    //                 <button>Joina ett team</button>
-    //                 `;
-    //         } else {
-    //             innerHTML = `
-    //                 <p>Du är med i ${teamName}</p>
-    //                 <button>Byt team</button>
-    //                 `;
-    //         }
-    //         toneic.querySelector("#toneicTeamInfo").innerHTML = innerHTML;
-
-    //     }
-    // });
-    
-
+        
 }
 
 

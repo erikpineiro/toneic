@@ -31,17 +31,17 @@
 
 
 /* LOGIN REGISTER */
-#loginRegister {
+#loginRegisterJoin {
     /* --wInternal: 80%; */
     flex-direction: column;
 }
-#loginRegister > div {
+#loginRegisterJoin > div {
     /* width: var(--wInternal); */
     display: none;
     opacity: 0;
     transition: opacity 0.5s;
 }
-#loginRegister form {
+#loginRegisterJoin form {
     /* background-color: white; */
     border-radius: var(--bRMainButton);
     margin: 0px auto;
@@ -49,15 +49,15 @@
     display: none;
     transition: opacity 0.5s;
 }
-#loginRegister form.visible {
+#loginRegisterJoin form.visible {
     display: flex;
     flex-direction: column;
 }
-#loginRegister > div.open {
+#loginRegisterJoin > div.open {
     display: block;
     opacity: 1;
 }
-#loginRegister input {
+#loginRegisterJoin input {
     padding: 1vh;
     border: 1px solid rgba(0,0,0,.5);
     border-radius: var(--bRMainButton);
@@ -68,23 +68,23 @@
 
     margin-top: 1vh;
 }
-#loginRegister p {
+#loginRegisterJoin p {
     margin: 0px;
     font-family: var(--ft2);
     font-size: 2.2vh;
 }
-#loginRegister p.link {
+#loginRegisterJoin p.link {
     cursor: pointer;
     font-size: 2.5vh;
     color: var(--cToneicSolid);
     text-decoration: underline;
 }
-#loginRegister p.feedback {
+#loginRegisterJoin p.feedback {
     opacity: 0;
     color: var(--cAchtung);
     transition: opacity 0.5s;
 }
-#loginRegister p.feedback.visible {
+#loginRegisterJoin p.feedback.visible {
     opacity: 1;
 }
 #loginForm p.link {
@@ -93,16 +93,16 @@
 #registerForm p.link {
     margin-bottom: 3vh;
 }
-#loginRegister .cancel {
+#loginRegisterJoin .cancel {
     margin-top: 10vh;
     width: var(--wInternal);
 }
-#registerSuccess {
+#loginRegisterJoin .registerSuccess {
     display: none;
     opacity: 0;
     transition: opacity .5s;
 }
-#registerSuccess.visible {
+#loginRegisterJoin .registerSuccess.visible {
     display: flex;
     flex-direction: column;
     justify-content: center;

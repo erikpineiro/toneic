@@ -4,6 +4,7 @@
     justify-content: space-between;
     align-items: flex-end;
     height: var(--szLogoMini);
+    margin-bottom: 1.5vh;
 }
 #header > * {
     height: var(--szLogoMini);
@@ -25,7 +26,7 @@
     margin-left: 1vh;
     display: flex;
     align-items: center;
-    font-size: calc(.8 * var(--szLogoMini));
+    font-size: calc(.7 * var(--szLogoMini));
 }
 
 
@@ -37,7 +38,7 @@
     grid-template-rows: repeat(3, 1fr);
     gap: 2px;
 
-    margin-left: 2vh;
+    margin-left: 1.5vh;
 
     transition: height .5s, transform .5s, flex-basis .5s;
 }
@@ -53,8 +54,18 @@
 
 
 /* USER */
-#header .user {
+#header .userLine {
     font-family: var(--ft2);
     flex-grow: 1;
     text-align: right;
+
+    vertical-align: baseline;
+}
+#header .userLine button.invisible {
+    display: none;
+}
+#header .userLine button {
+    font-size: 2vh;
+    margin-right: 1.5vh;
+    padding: .5vh 1vh;
 }

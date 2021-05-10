@@ -23,31 +23,22 @@ export const State = {
         localStorage.setItem("localState", JSON.stringify({ ...__, ...ls }));
     },
 
-    get currentToneicID () {
-        return "21v17";
-        return toneicWeek();
-    },
-
     updateTimeLeft: function(timeLeft) {
         let local = this.local;
         let serverPhase = {...local.serverPhase, timeLeft};
         this.updateLocal({ ...local, serverPhase });
     },
 
-    // serverPhase: function (data) {
-    //     ApiBridge.serverPhase(data);
-    // }
-
 };
 
 
 SubPub.subscribe({
-    event: "event::login:success",
+    event: "event::user:login:success",
     listener: function (response) {
+        let { userName, userID, token, toneics } = response.payload.data;
         State.updateLocal(response.payload.data);
     }
 });
-
 
 SubPub.subscribe({
     event: "event::register:user:success",
@@ -56,6 +47,27 @@ SubPub.subscribe({
     }
 });
 
+SubPub.subscribe({
+    event: "event::serverPhase:success",
+    listener: (response) => {
+        let { toneicID, phase, timeLeft } = response.payload.data;
+        State.updateLocal({
+            currentToneicID: toneicID,
+            serverPhase: { phase, timeLeft },
+        });
+    }
+});
+
+SubPub.subscribe({
+    event: "event::team:join:success",
+    listener: (response) => {
+        let { teamName, teamID } = response.payload.data;
+        State.updateLocal({ 
+            currentTeamID: teamID,
+            latestTeamName: teamName
+        });
+    }
+});
 
 
 function getDateInfo () {

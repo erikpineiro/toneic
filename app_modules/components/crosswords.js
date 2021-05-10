@@ -1,11 +1,15 @@
+import ApiBridge from "../apiBridge.js";
 import { myError } from "../error.js";
 import { State } from "../state.js";
+import { SubPub } from "../subpub.js";
+
 
 
 export class Crosswords {
     constructor (data) {
 
-        let { element, crosswords } = data;
+        let { element, crosswords, toneicID } = data;
+        this.toneicID = toneicID;
         this.element = element;
         this.crosswords = crosswords;
         this.direction = "h";
@@ -25,6 +29,14 @@ export class Crosswords {
         data = {...data, main: this};
         this.Cross = new Cross({ ...data });
         this.Keyboard = new Keyboard({...data});
+
+        SubPub.subscribe({
+            event: "event::toneic::updates:success",
+            listener: (response) => {
+                console.log(response);
+            }
+        });
+    
     }
 
     getElement (which) {
@@ -36,11 +48,27 @@ export class Crosswords {
         let cellUpdating = Cell.updating;
         if (cellUpdating) {
 
-            if (char === "clear") {
-                cellUpdating.element.textContent = "";
-            } else {
-                cellUpdating.element.textContent = char;
-            }
+            let value = char === "clear" ? "" : char;
+
+            ApiBridge.updateCrosswords({
+                toneicID: this.toneicID,
+                origin: cellUpdating.data.origin,
+                value,
+                callback: (response) => {
+                    if (!response.success || !response.payload.data.updated) {
+
+                        // TODO: What to do?
+                        console.log("response");
+                        myError.throw();
+
+                    } else {
+                        
+                        cellUpdating.element.textContent = value;
+
+                    }
+    
+                }
+            });
 
             // Next cell in word is updating
             let nextCell = Word.active.nextCell(cellUpdating);
@@ -65,7 +93,7 @@ export class Crosswords {
     
             legend.querySelector(".legend .text").textContent = description.text;
             if (description.image) {
-                let imageSrc = `../../../db/toneics/t${State.currentToneicID}/${description.image}`;
+                let imageSrc = `../../../db/toneics/${State.local.currentToneicID}/${description.image}`;
                 legend.querySelector(".legend img").setAttribute("src", imageSrc);    
             }
 
@@ -239,6 +267,7 @@ class Cell {
             word = this.inWords.find( w => w.data.direction === this.data.main.direction );
         }
         if (!word) {
+            console.log(this.inWords);
             myError.throw();
         }
         return word;

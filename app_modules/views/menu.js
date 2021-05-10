@@ -1,7 +1,7 @@
 import apiBridge from "../apiBridge.js";
 import { State } from "../state.js";
 import { SubPub } from "../subpub.js";
-import { showLoginRegister } from "./loginRegister.js";
+import { showLoginRegisterJoin } from "./loginRegisterJoin.js";
 
 
 
@@ -65,7 +65,7 @@ export function init (menu) {
     });
     
     SubPub.subscribe({
-        event: "event::login:success",
+        event: "event::user:login:success",
         listener: (response) => {
             menu.querySelector("#menuLogout").classList.remove("invisible");
             menu.querySelector("#menuLogin").classList.add("invisible");
@@ -73,36 +73,36 @@ export function init (menu) {
         }
     });
 
-    // Team Join Success
-    SubPub.subscribe({
-        event: "event::team:join:success",
-        listener: (response) => {
-            let { teamName, changeTeam, ownTeam, teamToneics } = response.payload.data;
+    // // Team Join Success
+    // SubPub.subscribe({
+    //     event: "event::team:join:success",
+    //     listener: (response) => {
+    //         let { teamName, changeTeam, ownTeam, teamToneics } = response.payload.data;
             
-            console.log(teamName, changeTeam, ownTeam, teamToneics);
+    //         console.log(teamName, changeTeam, ownTeam, teamToneics);
 
-            if (!changeTeam.new && !changeTeam.change) {
-                console.log("no userInfo");
-            } else {
-                console.log("yes userInfo");
-            }
+    //         if (!changeTeam.new && !changeTeam.change) {
+    //             console.log("no userInfo");
+    //         } else {
+    //             console.log("yes userInfo");
+    //         }
 
-            let innerHTML = "";
-            if (ownTeam) {
-                innerHTML = `
-                    <p>Du löser det själv för tillfället.</p>
-                    <button>Joina ett team</button>
-                    `;
-            } else {
-                innerHTML = `
-                    <p>Du är med i ${teamName}</p>
-                    <button>Byt team</button>
-                    `;
-            }
-            toneic.querySelector("#toneicTeamInfo").innerHTML = innerHTML;
+    //         let innerHTML = "";
+    //         if (ownTeam) {
+    //             innerHTML = `
+    //                 <p>Du löser det själv för tillfället.</p>
+    //                 <button>Joina ett team</button>
+    //                 `;
+    //         } else {
+    //             innerHTML = `
+    //                 <p>Du är med i ${teamName}</p>
+    //                 <button>Byt team</button>
+    //                 `;
+    //         }
+    //         toneic.querySelector("#toneicTeamInfo").innerHTML = innerHTML;
 
-        }
-    });
+    //     }
+    // });
     
 
 
@@ -122,7 +122,7 @@ export function init (menu) {
 
     menu.querySelector("#menuLogin").click({
         callback: () => {
-            showLoginRegister({cover: "loginRegister"});
+            showLoginRegisterJoin({which: "login"});
         }
     });
 

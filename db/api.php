@@ -27,7 +27,10 @@ switch ($_SERVER["REQUEST_METHOD"]) {
 
 
 switch ($input["action"]) {
-    case "serverPhase":
+    case "user_login":
+    case "user_register":
+    case "get_serverPhase":
+    case "get_loadToneic":
         $legitCheck = false;
         break;
     case "any other":
@@ -41,9 +44,9 @@ switch ($input["action"]) {
 if ($legitCheck) {
     $credentials = [
         "userID" => $input["payload"]["userID"],
-        "token" => $input["payload"]["token"]
+        "token" => $input["payload"]["token"],
     ];
-    if (!isUserLegit($credentials)) {
+    if (!aux_isUserLegit($credentials)) {
         send(200, aux_response(null, "api_invalid_user_credentials"));
     }
 }

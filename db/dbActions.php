@@ -5,6 +5,7 @@ include_once("../php/auxiliar.php");
 
 define('USERS_DIRECTORY', './users/');
 define('TEAMS_DIRECTORY', './teams/');
+define('TONEICS_DIRECTORY', './toneics/');
 
 
 // Bridge to API. All functions go through here
@@ -42,11 +43,6 @@ function bridge ($input) {
             ];
         }
     }
-
-    // Check that the user is legit
-    if ($input["legitCheck"]) {
-        aux_response(null, "Bridge: User credentials invalid");
-    }
     
     // Call function
     return $input["action"]($input["payload"]);
@@ -54,6 +50,26 @@ function bridge ($input) {
 
 
 
+function get_entityExist($payload) {
+
+    if (!$payload) return false;
+
+    $kind = $payload["kind"];
+    $entityID = $payload["entityID"];
+    $entityName = $payload["entityName"];
+
+    if (!$kind || (!$entityID && !$entityName)) return false;
+
+    if (!$entityID) {
+        $function = $kind === "user" ? "aux_fileNameFromUserName" : "aux_fileNameFromTeamName";
+        $entityID = $function($entityName);
+    }
+
+    $function = $kind === "user" ? "aux_filePathFromUserID" : "aux_filePathFromTeamID";
+    $filePath = $function($entityID);
+
+    return file_exists($filePath);
+}
 function get_serverPhase () {
     $start_hours = 19;
     $start_day = 5; // Friday
@@ -89,7 +105,7 @@ function get_serverPhase () {
         $timeLeft = (60 - $now_mins) * 60 - $now_secs;
     }
    
-    return [
+    $data = [
         // "phase" => $phase,
         "phase" => "phase::Toneic",
         // "timeLeft" => $timeLeft,
@@ -99,28 +115,83 @@ function get_serverPhase () {
         "endDay" => $end_day,
         "toneicID" => toneicID()
     ];
+    return aux_response($data, "alles_gut");
 }
+function get_loadToneic ($payload) {
 
-function get_entityExist($payload) {
+    $toneicID = $payload["toneicID"];
 
-    if (!$payload) return false;
+    $filePath = aux_filePathFromToneicID($toneicID);
+    $responseData = getFileContents($filePath);
 
-    $kind = $payload["kind"];
-    $entityID = $payload["entityID"];
-    $entityName = $payload["entityName"];
+    $responseMessage = $responseData ? "alles_gut" : "no_file_contents";
 
-    if (!$kind || (!$entityID && !$entityName)) return false;
-
-    if (!$entityID) {
-        $function = $kind === "user" ? "aux_fileNameFromUserName" : "aux_fileNameFromTeamName";
-        $entityID = $function($entityName);
+    // Remove all solutions
+    foreach ($responseData["crosswords"]["words"] as &$words) {
+        $words["length"] = strlen($words["word"]);
+        unset($words["word"]);
     }
 
-    $function = $kind === "user" ? "aux_filePathFromUserID" : "aux_filePathFromTeamID";
-    $filePath = $function($entityID);
+    return aux_response($responseData, $responseMessage);
 
-    return file_exists($filePath);
 }
+function toneic_latestActions ($payload) {
+
+    $toneicID = $payload["toneicID"];
+    $userID = $payload["userID"];
+
+    $filePathUser = aux_filePathFromUserID($userID);
+    $userData = getFileContents($filePathUser);
+    $userToneics = $userData["toneics"];
+    
+    // Get the team with which this use if solving this Toneic. And the user's last update
+    $indexUserToneic = array_search($toneicID, array_column($userToneics, 'toneicID'));
+    if ($indexUserToneic !== false) {
+        $teamID = $userToneics[$indexUserToneic]["teamID"];
+        $lastAction = $userToneics[$indexUserToneic]["lastAction"];
+    } else {
+        // TODO: think more about this. Automatically create it?
+        $responseData = null;
+        $responseMessage = "user_has_no_such_toneic";
+        return aux_response($responseData, $responseMessage);
+    }
+
+    $filePathTeam = aux_filePathFromTeamID($teamID);
+    $teamData = getFileContents($filePathTeam);
+    $teamToneics = $teamData["toneics"];
+    $indexTeamToneic = array_search($toneicID, array_column($teamToneics, 'toneicID'));
+    if ($indexTeamToneic !== false) {
+        $actions = $teamToneics[$indexTeamToneic]["actions"];
+        $nActions = count($actions);
+    } else {
+        // TODO: think more about this... team does not have this toneic?
+        $responseData = null;
+        $responseMessage = "team_has_no_such_toneic";
+        return aux_response($responseData, $responseMessage);
+    }
+
+    // Get all actions since last update
+    if ($lastAction >= $nActions - 1) {
+        // Up to date
+        $actions = [];
+    } else {
+        $actions = array_splice($actions, $lastAction);
+        
+        // Update user's lastAction
+        $userToneics[$indexUserToneic]["lastAction"] = $nActions - 1;
+        $update = [ "toneics" => $userToneics[$indexUserToneic] ];
+        aux_update($filePathUser, $update);
+    }
+
+    $responseData = [
+        "actions" => $actions
+    ];
+    $responseMessage = "alles_gut";
+
+    return aux_response($responseData, $responseMessage);
+
+}
+
 
 function team_register ($payload) {
 
@@ -173,7 +244,7 @@ function user_login ($payload) {
 
     $userFileName = aux_fileNameFromUserName($payload["userName"]);
     if ($userFileName === null) {
-        $message = "Login: User not found in Database";
+        $message = "login_no_such_user_in_DB";
     } else {
         if (aux_isUserLegit($payload)) {
             $update = [
@@ -182,9 +253,16 @@ function user_login ($payload) {
             ];
     
             $_SESSION["userData"] = aux_update($userFileName, $update);
-            $_SESSION["loggedIn"] = true;        
+            if ($_SESSION["userData"]) {
+                if (isset($_SESSION["userData"]["password"])) {
+                    unset($_SESSION["userData"]["password"]);
+                }
+                $_SESSION["loggedIn"] = true;
+            } else {
+                $message = "login_updating_problems";
+            }
         } else {
-            $message = "Login: Invalid credentials";
+            $message = "login_invalid_credentials";
         }
     }
     
@@ -217,8 +295,7 @@ function user_register ($payload) {
                 "password" => $password,
                 "token" => randomToken(13),
                 "email" => $email,
-                "latestTeam" => null,
-                "currentTeam" => null,
+                "latestTeamName" => null,
                 "toneics" => [],
                 "points" => 0        
             ];
@@ -255,11 +332,18 @@ function user_joinTeam($payload){
     $teamID = $payload["teamID"];
     $passwordForTeam = $payload["passwordForTeam"];
 
+    if (!$teamID) {
+        $teamID = aux_teamIDfromTeamName($payload["teamName"]);
+        if (!$teamID) {
+            return aux_response(null, "no_such_team_name");
+        }
+    }
+
+
     $responseData = [
         "ownTeam" => !!$payload["ownTeam"],
         "teamID" => $teamID
     ];
-    $responseMessage = "team_credentials_invalid";
 
 
     // User allowed to join?
@@ -267,11 +351,11 @@ function user_joinTeam($payload){
     if (!in_array($userID, $teamData["allowedUsers"], true)) {
         $credentials = [
             "fileName" => aux_filePathFromTeamID($teamID),
-            "password" => $password
+            "password" => $passwordForTeam
         ];
         if (!aux_checkCredentials($credentials)) {
             $responseData["joined"] = false;
-            return aux_response($responseData, $responseMessage);
+            return aux_response($responseData, "team_credentials_invalid");
         }
     }
 
@@ -282,6 +366,8 @@ function user_joinTeam($payload){
 
 
     // If necessary: Remove other teams for this toneic. User only be in one team at the time
+    // new: true if user was not in a team before (not even own team)
+    // change: true if user was in a team before
     $index = array_search(toneicID(), array_column($userToneics, 'toneicID'));
     $changeTeam = [
         "change" => false,
@@ -299,11 +385,13 @@ function user_joinTeam($payload){
 
 
     // If necessary, update user information
+    $responseMessage = "team_joined";
     if ($changeTeam["new"] || $changeTeam["change"]) {
 
         $userToneics[] = [
             "toneicID" => toneicID(),
-            "teamID" => $teamID
+            "teamID" => $teamID,
+            "lastAction" => 0,
         ];
         $userUpdate = [
             "toneics" => $userToneics
@@ -314,7 +402,6 @@ function user_joinTeam($payload){
         // Check result of update
         if ($userUpdate) {
             $responseData["joined"] = true;
-            $responseMessage = "team_joined";
         } else {
             $responseData["joined"] = false;
             $responseMessage = "team_join_network_problems";
@@ -323,12 +410,11 @@ function user_joinTeam($payload){
     } else {
 
         $responseData["joined"] = true;
-        $responseMessage = "team_joined";
 
     }
 
 
-    // If all ok, get team data
+    // If all ok, get & save team data
     if ($responseData["joined"]) {
 
         $teamData = getFileContents(aux_filePathFromTeamID($teamID));
@@ -361,6 +447,15 @@ function user_joinTeam($payload){
         $responseData["teamName"] = $teamData["teamName"];
         $responseData["teamToneics"] = $teamData["toneics"];
 
+
+        // Save teamName in user (if not own team)
+        // Don't save teamID, that is only for the team for the current toneic
+        if (!$payload["ownTeam"]) {
+            $userUpdate = [
+                "latestTeamName" => $responseData["teamName"],
+            ];
+            aux_update(aux_filePathFromUserID($userID), $userUpdate);
+        }
     }
 
 
@@ -399,6 +494,11 @@ function aux_checkCredentials($credentials) {
     return false;
 }
 function aux_isUserLegit($credentials) {
+
+    // if ($credentials["userID"] === "anonymousUserID" && $credentials["token"] = "anonymousToken") {
+    //     return true;
+    // }
+
     $userName = $credentials["userName"];
     $userID = $credentials["userID"];
     if (isset($credentials["userID"])) {
@@ -413,6 +513,9 @@ function aux_isUserLegit($credentials) {
 
 
 // Files and file names
+function aux_teamIDfromTeamName ($teamName) {
+    return pathinfo(aux_searchAmongTeams("teamName", $teamName), PATHINFO_FILENAME);
+}
 function aux_fileNameFromUserName ($userName) {
     return aux_searchAmongUsers("userName", $userName);
 }
@@ -424,6 +527,9 @@ function aux_filePathFromTeamID ($ID) {
 }
 function aux_filePathFromUserID ($ID) {
     return USERS_DIRECTORY.$ID.".json";
+}
+function aux_filePathFromToneicID ($ID) {
+    return TONEICS_DIRECTORY."$ID/$ID.json";
 }
 function aux_OwnTeamIDFromUserID ($userID) {
     return "t_".$userID;

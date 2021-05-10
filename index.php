@@ -7,28 +7,28 @@
             serverPhase: { phase, timeLeft }
         }
     */
-    require("./php/auxiliar.php");
-    $initData = [
-        "userData" => null,
-        "loggedIn" => false,
-        "serverPhase" => serverPhase()
-    ];
+    // require("./php/auxiliar.php");
+    // $initData = [
+    //     "userData" => null,
+    //     "loggedIn" => false,
+    //     "serverPhase" => serverPhase()
+    // ];
 
-    if (isset($_SESSION["loggedIn"]) && $_SESSION["loggedIn"] === true) {
+    // if (isset($_SESSION["loggedIn"]) && $_SESSION["loggedIn"] === true) {
 
-        $initData["userData"] = $_SESSION["userData"];
-        $initData["loggedIn"] = true;
+    //     $initData["userData"] = $_SESSION["userData"];
+    //     $initData["loggedIn"] = true;
 
-        // $initData["userName"] = $_SESSION["userName"];
-        // $initData["token"] = $_SESSION["token"];
+    //     // $initData["userName"] = $_SESSION["userName"];
+    //     // $initData["token"] = $_SESSION["token"];
 
-        // $initData = [
-        //     "userName" => $_SESSION["userName"],
-        //     "token" => $_SESSION["token"],
-        //     "loggedIn" => true
-        // ];
+    //     // $initData = [
+    //     //     "userName" => $_SESSION["userName"],
+    //     //     "token" => $_SESSION["token"],
+    //     //     "loggedIn" => true
+    //     // ];
     
-    }
+    // }
 
 
 ?>
@@ -71,13 +71,13 @@
             </div>
         </div>
         <div id="userInfo" class="cover invisible"></div>        
-        <div id="loginRegister" class="cover off"></div>        
+        <div id="loginRegisterJoin" class="cover off"></div>        
         <div id="init" class="cover">INIT PAGE</div>        
     </main>
     
-    <script>
+    <!-- <script>
         let initData = <?php echo json_encode($initData) ?>;
-    </script>    
+    </script>     -->
 
     <script type="module" src="./js/index.js"></script>
 

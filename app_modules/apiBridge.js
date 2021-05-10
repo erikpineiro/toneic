@@ -13,40 +13,57 @@ const SHOW_OBJECT_RESPONSE = !SHOW_RAW_RESPONSE;
 
 export default {
 
-    // getCrosswords: function (data) {
-    //     let { week = -1, year = -1 } = data;
-    //     let toneicID = `t${year}v${week}`;
+    loadToneic: function (data) {
+        
+        let { toneicID, callback } = data;
+        
+        _dbFetch({
+            requestKind: "request::toneic:load",
+            method: "GET",
+            url: API_URL,
+            input: {
+                action: "get_loadToneic",
+                payload: { toneicID }
+            },
+            callback: (response) => {
+                let event = (response.success) ? "event::toneic:load:success" : "event::toneic:load:failed";
+                SubPub.publish({
+                    event,
+                    detail: response
+                });
+                callback && callback(response);
+            }
+        });         
+    },
 
-    //     // Pre-Chekcs
-    //     let message = "";
-    //     if (week ===  -1 || year === -1) { message = "Bad format"; }
+    latestCorsswordActions: function (data) {
 
-    //     if (message) {
-    //         SubPub.publish({
-    //             event: "event::toneic:get:failed",
-    //             detail: _newResponse({
-    //                 requestKind:"request::invalid",
-    //                 message
-    //             })
-    //         });
-    //     } else {
-    //         _dbFetch({
-    //             requestKind: "request::toneic:get",
-    //             method: "GET",
-    //             url: API_URL,
-    //             body: JSON.stringify({ action: "player_login", payload: {userName, token, password} }),
-    //             callback: (response) => {
-    //                 let event = (response.success && response.payload.data.loggedIn) ? "event::login:success" : "event::login:failed";
-    //                 SubPub.publish({
-    //                     event,
-    //                     detail: response
-    //                 });
-    //                 callback && callback(response);
-    //             }
-    //         }); 
-    //     }    
+        let { toneicID, callback } = data; 
 
-    // },
+        if (!State.local.token || !State.local.userID) {
+            console.log("user_not_loggedIn_nothing_to_update");
+            callback && callback({
+                success: true,
+                payload: {data: {noUpdates: true}}
+            })
+            return;
+        }
+
+        let userID = State.local.userID;
+        let token = State.local.token;
+
+        _dbFetch({
+            requestKind: "request::toneic:latestUpdates",
+            method: "POST",
+            url: API_URL,
+            body: JSON.stringify({ action: "toneic_latestActions", payload: {userID, token, toneicID} }),
+            callback: (response) => {
+                callback && callback(response);
+            }
+        });        
+               
+    },
+
 
     doesEntityExist: function (data) {
         let { entity, key, value } = data;
@@ -66,7 +83,7 @@ export default {
     },
 
     joinTeam: function (data) {
-        let { teamID } = data;
+        let { teamID, teamName, callback } = data;
         let userID = State.local.userID;
         let token = State.local.token;
 
@@ -76,8 +93,15 @@ export default {
             requestKind: "request::joinTeam",
             method: "POST",
             url: API_URL,
-            body: JSON.stringify({ action: "user_joinTeam", payload: {userID, token, teamID} }),
-            callback: (response) => {}
+            body: JSON.stringify({ action: "user_joinTeam", payload: {userID, token, teamID, teamName} }),
+            callback: (response) => {
+                let event = (response.success && response.payload.data.joined) ? "event::team:join:success" : "event::team:join:failed";
+                SubPub.publish({
+                    event,
+                    detail: response
+                });
+                callback && callback(response);
+            }
         });
     },
 
@@ -118,7 +142,7 @@ export default {
 
         if (message) {
             SubPub.publish({
-                event: "event::login:failed",
+                event: "event::user:login:failed",
                 detail: _newResponse({
                     requestKind:"request::invalid",
                     message
@@ -131,7 +155,7 @@ export default {
                 url: API_URL,
                 body: JSON.stringify({ action: "user_login", payload: {userName, token, password} }),
                 callback: (response) => {
-                    let event = (response.success && response.payload.data.loggedIn) ? "event::login:success" : "event::login:failed";
+                    let event = (response.success && response.payload.data && response.payload.data.loggedIn) ? "event::user:login:success" : "event::user:login:failed";
                     SubPub.publish({
                         event,
                         detail: response
@@ -242,26 +266,78 @@ export default {
         _dbFetch({
             requestKind: "request::serverPhase",
             method: "GET",
-            parameters: ["action", "serverPhase"],
             url: API_URL,
-            callback,
+            input: {
+                action: "get_serverPhase"
+            },
+            callback: (response) => {
+
+                if (!response.success) {
+                    console.log("ERROR!!!! WHAT TO DO?");
+                    myError.throw();
+                } else {
+                    SubPub.publish({
+                        event: "event::serverPhase:success",
+                        detail: response
+                    });
+                }
+
+                callback && callback(response);
+
+            },
         });     
 
-    }
+    },
+
+    updateCrosswords: function (data) {
+        
+        console.log(data);
+        let { toneicID, origin, value, callback } = data;
+
+        if (!State.local.token || !State.local.userID) {
+            console.log("no_updates_possible_for_user_not_loggedIn");
+            callback && callback({
+                success: true,
+                payload: {data: {updated: true}}
+            })
+            return;
+        }
+
+        let userID = State.local.userID;
+        let token = State.local.token;
+
+        _dbFetch({
+            requestKind: "request::toneic:update",
+            method: "POST",
+            url: API_URL,
+            body: JSON.stringify({ action: "toneic_update", payload: {userID, token, toneicID, origin, value} }),
+            callback: (response) => {
+                callback && callback(response);
+            }
+        });        
+        
+    },
 }
 
 
 
 function _get (data) {
 
-    let { url, parameters = [], callback } = data;
+    let { url, input, callback } = data;
     let headers = { ...HEADERS };
 
-    let paramString = parameters.length ?
-                                    "?" + parameters.reduce((acc, pair, index) => acc + `${(index > 0) ? "&" : ""}${pair[0]}=${pair[1]}`, "")
-                                    : "";
+    if (!input) {
+        myError.throw();
+    }
 
-    let request = new Request(url + paramString, {
+    input.payload = input.payload || "none";
+
+    let inputString = "?input=" + JSON.stringify(input);
+    // let paramString = parameters.length ?
+    //                                 "?" + parameters.reduce((acc, pair, index) => acc + `${(index > 0) ? "&" : ""}${pair[0]}=${pair[1]}`, "")
+    //                                 : "";
+
+    let request = new Request(url + inputString, {
         method: "GET",
         headers
     });
@@ -357,6 +433,9 @@ function _newResponse(response){
             response = { ...response, success: false };
             break;
 
+        case "request::toneic:load":
+        case "request::toneic:update":
+        case "request::register:team":
         case "request::joinTeam":
         case "request::doesEntityExist":
         case "request::serverPhase":

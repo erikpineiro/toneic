@@ -1,11 +1,10 @@
 {
     "userID": "u0000001",
     "userName": "erik",
-    "password": "erik",
-    "token": "681tkVkVoyG8A",
-    "email": "erik",
-    "latestTeam": null,
-    "currentTeam": null,
+    "password": "kasdasd",
+    "token": "F5nGDWQDH0Yy1",
+    "email": "erik@sdf.se",
+    "latestTeamName": null,
     "toneics": [
         {
             "toneicID": "t21v18",

@@ -3,6 +3,7 @@ import * as Behaviour from "../behaviour.js";
 import * as Button from "../components/button.js";
 import { State } from "../state.js";
 import { SubPub } from "../subpub.js";
+import { showLoginRegisterJoin } from "./loginRegisterJoin.js";
 
 export function init(header) {
     
@@ -11,9 +12,9 @@ export function init(header) {
     header.innerHTML = `
         <div class="logo">
             <div class="image"></div>
-            <div class="text">TONEIC ${State.currentToneicID}</div>
+            <div class="text">TONEIC&nbsp<span></span></div>
         </div>
-        <div class="user"></div>
+        <div class="userLine"><button class="invisible"></button><span class="team invisible"></span><span class="user">Ej inloggad</span></div>
         <div class="hamburger">
             <div></div>
             <div></div>
@@ -22,15 +23,10 @@ export function init(header) {
     `;
 
 
-    let userHtml = header.querySelector(".user");
+    let userHtml = header.querySelector(".userLine .user");
+    let teamHtml = header.querySelector(".userLine .team");
     let hamburgerHtml = header.querySelector(".hamburger");
 
-    // Player / Login
-    if (localState.loggedIn) {
-        userHtml.textContent = localState.userName;
-    } else {
-        userHtml.textContent = "Ej inloggad";
-    }
     
     // Hamburger
     hamburgerHtml.click({
@@ -44,10 +40,17 @@ export function init(header) {
     });
 
 
+    // CLICK
+    header.querySelector(".userLine button").click({
+        callback: () => {
+            showLoginRegisterJoin({ which: "join" });
+        }
+    });
+
 
     // SUBCRIPTIONS
     SubPub.subscribe({
-        event: "event::login:success",
+        event: "event::user:login:success",
         listener: (response) => {
             let userName = response.payload.data.userName;
             userHtml.textContent = userName;
@@ -75,4 +78,28 @@ export function init(header) {
         }
     });
 
+    SubPub.subscribe({
+        event: "event::serverPhase:success",
+        listener: (response) => {
+            let { toneicID } = response.payload.data;
+            header.querySelector(".logo .text span").textContent = toneicID;
+        }
+    });
+    
+    SubPub.subscribe({
+        event: "event::team:join:success",
+        listener: (response) => {
+            let { ownTeam, teamName } = response.payload.data;
+            let buttonHtml = header.querySelector(".userLine button");
+            buttonHtml.classList.remove("invisible");
+
+            let buttonText = ownTeam ? "Joina ett lag" : "Byt lag";
+            buttonHtml.textContent = buttonText;
+
+            if (!ownTeam) {
+                teamHtml.classList.remove("invisible");
+                teamHtml.textContent = `(${teamName})`;
+            }
+        }
+    });    
 }
