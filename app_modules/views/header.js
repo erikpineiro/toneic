@@ -1,6 +1,5 @@
 import * as AuxiliarFunctions from "../auxiliarFunctions.js";
 import * as Behaviour from "../behaviour.js";
-import * as Button from "../components/button.js";
 import { State } from "../state.js";
 import { SubPub } from "../subpub.js";
 import { showLoginRegisterJoin } from "./loginRegisterJoin.js";

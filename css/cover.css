@@ -41,6 +41,10 @@
     opacity: 0;
     transition: opacity 0.5s;
 }
+#loginRegisterJoin h1 {
+    margin-top: 0px;
+    font-family: var(--ft1);
+}
 #loginRegisterJoin form {
     /* background-color: white; */
     border-radius: var(--bRMainButton);
@@ -112,6 +116,10 @@
 
 #registerForm input:not(type=submit) {
     display: flex;
+}
+
+#buttonLeaveTeam {
+    margin-top: 3vh;
 }
 
 

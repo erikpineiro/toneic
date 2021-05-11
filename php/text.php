@@ -5,56 +5,95 @@ require("../db/fileIO.php");
 define('USERS_DIRECTORY', './users/');
 define('TEAMS_DIRECTORY', '../db/teams/');
 
-
-aux_teamIDfromTeamName ("basba");
-
-function aux_teamIDfromTeamName ($teamName) {
-    $file = aux_searchAmongTeams("teamName", $teamName);
-    echo "results";
-    echo "<br>";
-    echo $file;
-    echo "<br>";
-    echo pathinfo($file, PATHINFO_FILENAME);
-}
-function aux_searchAmong($where, $key, $value, $onlyOne) {
-    $found = [];
-    $all = $where === "users" ? aux_userFileNamesAsArray() : aux_teamFileNamesAsArray();
-    foreach ($all as $fileName) {
-        if (getFileContents($fileName)[$key] === $value) {
-            $found[] = $fileName;
-            if ($onlyOne) {
-                freeFile($fileName);
-                break;
-            }
-        }
-        freeFile($fileName);
+$actions = json_decode('[
+    {
+        "kind": "letterUpdate",
+        "origin": [
+            0,
+            0
+        ],
+        "value": "W",
+        "number": 10
+    },
+    {
+        "kind": "letterUpdate",
+        "origin": [
+            1,
+            0
+        ],
+        "value": "E",
+        "number": 1
+    },
+    {
+        "kind": "letterUpdate",
+        "origin": [
+            2,
+            0
+        ],
+        "value": "D",
+        "number": 6
     }
-    return $onlyOne ? $found[0] : $found;
-}
-function aux_searchAmongTeams($key, $value, $onlyOne = true) {
-    return aux_searchAmong("teams", $key, $value, $onlyOne);
-}
-function aux_searchAmongUsers($key, $value, $onlyOne = true) {
-    return aux_searchAmong("users", $key, $value, $onlyOne);
-}
-function aux_teamFileNamesAsArray ($path = TEAMS_DIRECTORY) {
-    return aux_fileNamesAsArray($path);
-}
-function aux_userFileNamesAsArray ($path = USERS_DIRECTORY) {
-    return aux_fileNamesAsArray($path);
-}
-function aux_fileNamesAsArray($path) {
-    $array = [];
-    foreach (new DirectoryIterator($path) as $file) {
+]', true);
+
+var_dump($actions);
+
+$numbers = array_map(
+    function($action) {
+        return $action["number"];
+    }, $actions);
+$maxNumber = max($numbers) + 1;
+echo "<br><br><br>$maxNumber";
+
+
+// aux_teamIDfromTeamName ("basba");
+
+// function aux_teamIDfromTeamName ($teamName) {
+//     $file = aux_searchAmongTeams("teamName", $teamName);
+//     echo "results";
+//     echo "<br>";
+//     echo $file;
+//     echo "<br>";
+//     echo pathinfo($file, PATHINFO_FILENAME);
+// }
+// function aux_searchAmong($where, $key, $value, $onlyOne) {
+//     $found = [];
+//     $all = $where === "users" ? aux_userFileNamesAsArray() : aux_teamFileNamesAsArray();
+//     foreach ($all as $fileName) {
+//         if (getFileContents($fileName)[$key] === $value) {
+//             $found[] = $fileName;
+//             if ($onlyOne) {
+//                 freeFile($fileName);
+//                 break;
+//             }
+//         }
+//         freeFile($fileName);
+//     }
+//     return $onlyOne ? $found[0] : $found;
+// }
+// function aux_searchAmongTeams($key, $value, $onlyOne = true) {
+//     return aux_searchAmong("teams", $key, $value, $onlyOne);
+// }
+// function aux_searchAmongUsers($key, $value, $onlyOne = true) {
+//     return aux_searchAmong("users", $key, $value, $onlyOne);
+// }
+// function aux_teamFileNamesAsArray ($path = TEAMS_DIRECTORY) {
+//     return aux_fileNamesAsArray($path);
+// }
+// function aux_userFileNamesAsArray ($path = USERS_DIRECTORY) {
+//     return aux_fileNamesAsArray($path);
+// }
+// function aux_fileNamesAsArray($path) {
+//     $array = [];
+//     foreach (new DirectoryIterator($path) as $file) {
         
-        if ($file->isDot()) continue;
-        if ($file->getExtension() !== "json") continue;
-        if (substr($file->getFilename(), 0, 1) !== "u" && substr($file->getFilename(), 0, 1) !== "t") continue;
+//         if ($file->isDot()) continue;
+//         if ($file->getExtension() !== "json") continue;
+//         if (substr($file->getFilename(), 0, 1) !== "u" && substr($file->getFilename(), 0, 1) !== "t") continue;
 
-        $array[] = $path.$file->getFilename();
-    }
-    return $array;
-}
+//         $array[] = $path.$file->getFilename();
+//     }
+//     return $array;
+// }
 
 
 // var_dump($_GET);

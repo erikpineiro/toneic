@@ -31,9 +31,37 @@ export class Crosswords {
         this.Keyboard = new Keyboard({...data});
 
         SubPub.subscribe({
-            event: "event::toneic::updates:success",
+            event: "event::crosswords:latestActions:success",
             listener: (response) => {
                 console.log(response);
+                let { actions } = response.payload.data;
+
+                actions.sort((a, b) => a.number - b.number);
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        
+                        switch (action.kind) {
+                            case "letterUpdate":
+                                Cell.fromOrigin(action.origin).element.textContent = action.value;
+                                break;
+                            default:
+                                myError.throw();
+                        }
+
+
+                    }, index * 200);
+                });
+            }
+        });
+
+        SubPub.subscribe({
+            event: "event::team:join:success",
+            listener: (response) => {
+                console.log(State.local);
+                ApiBridge.crosswordsLatestActions({                    
+                    toneicID: State.local.toneicID,
+                    init: true,
+                });
             }
         });
     
@@ -70,7 +98,7 @@ export class Crosswords {
                 }
             });
 
-            // Next cell in word is updating
+            // Next cell in word becomes updating
             let nextCell = Word.active.nextCell(cellUpdating);
             if (nextCell !== null) {
                 nextCell.isUpdating();
@@ -218,6 +246,7 @@ class Word {
 class Cell {
 
     static all = [];
+    static fromOrigin (origin) { return Cell.all.find(c => samePos(c.data.origin, origin)); }
     static get updating () { return Cell.all.find(c => c._updating); }
 
     constructor (data) {

@@ -38,10 +38,12 @@ export default {
 
     crosswordsLatestActions: function (data) {
 
-        let { toneicID, callback } = data; 
+        console.log("Started: Crosswords Latest Actions", data);
+
+        let { toneicID, callback, init = false } = data;
 
         if (!State.local.token || !State.local.userID) {
-            console.log("user_not_loggedIn_nothing_to_update");
+            console.log("user_not_loggedIn_nothing_to_get");
             callback && callback({
                 success: true,
                 payload: {data: {noUpdates: true}}
@@ -53,11 +55,18 @@ export default {
         let token = State.local.token;
 
         _dbFetch({
-            requestKind: "request::toneic:latestUpdates",
+            requestKind: "request::crosswords:latestActions",
             method: "POST",
             url: API_URL,
-            body: JSON.stringify({ action: "toneic_latestActions", payload: {userID, token, toneicID} }),
+            body: JSON.stringify({ action: "crosswords_latestActions", payload: {userID, token, toneicID, init} }),
             callback: (response) => {
+                console.log(response);
+                if (response.success && response.payload.data) {
+                    SubPub.publish({
+                        event: "event::crosswords:latestActions:success",
+                        detail: response
+                    });
+                }
                 callback && callback(response);
             }
         });        
@@ -65,8 +74,15 @@ export default {
     },
     crosswordsNewAction: function (data) {
         
-        console.log(data);
+        console.log("Started: Crosswords New Action", data);
+        
         let { toneicID, origin, value, callback } = data;
+        let action = {
+            kind: "letterUpdate",
+            origin,
+            value
+        };
+
 
         if (!State.local.token || !State.local.userID) {
             console.log("no_updates_possible_for_user_not_loggedIn");
@@ -84,7 +100,7 @@ export default {
             requestKind: "request::crosswords:newAction",
             method: "POST",
             url: API_URL,
-            body: JSON.stringify({ action: "crosswords_newAction", payload: {userID, token, toneicID, origin, value} }),
+            body: JSON.stringify({ action: "crosswords_newAction", payload: {userID, token, toneicID, action} }),
             callback: (response) => {
                 callback && callback(response);
             }
@@ -111,7 +127,7 @@ export default {
     },
 
     joinTeam: function (data) {
-        let { teamID, teamName, callback } = data;
+        let { teamID, teamName, passwordForTeam, callback } = data;
         let userID = State.local.userID;
         let token = State.local.token;
 
@@ -121,9 +137,9 @@ export default {
             requestKind: "request::joinTeam",
             method: "POST",
             url: API_URL,
-            body: JSON.stringify({ action: "user_joinTeam", payload: {userID, token, teamID, teamName} }),
+            body: JSON.stringify({ action: "user_joinTeam", payload: {userID, token, teamID, teamName, passwordForTeam} }),
             callback: (response) => {
-                let event = (response.success && response.payload.data.joined) ? "event::team:join:success" : "event::team:join:failed";
+                let event = (response.success && response.payload.data && response.payload.data.joined) ? "event::team:join:success" : "event::team:join:failed";
                 SubPub.publish({
                     event,
                     detail: response
@@ -414,9 +430,9 @@ function _newResponse(response){
         case "request::invalid":
             response = { ...response, success: false };
             break;
-
         case "request::toneic:load":
         case "request::crosswords:newAction":
+        case "request::crosswords:latestActions":
         case "request::register:team":
         case "request::joinTeam":
         case "request::entityExists":
@@ -430,6 +446,10 @@ function _newResponse(response){
             response = { ...response, success: false, message: `Unknown requestKind (${rq})` };
             break;
 
+    }
+
+    if (!response.success) {
+        console.log("Unsuccessful respone", response);
     }
 
     return response;

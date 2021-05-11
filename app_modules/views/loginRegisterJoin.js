@@ -21,6 +21,7 @@ export function init (loginReg) {
                 <p class="feedback">feedback</p>
                 <p id="linkForgotTeam" class="link">Glömt teamets lösenord?</p>
                 <p id="linkToRegisterTeam" class="link">Registrera ett nytt lag</p>
+                <button id="buttonLeaveTeam" class="wideButton" style="display:none;">Lämna <span></span></button>
             </form>
         </div>
         <div id="registerTeamForm">
@@ -74,6 +75,12 @@ export function init (loginReg) {
 
 
     // CLICKS
+    loginReg.querySelector("#buttonLeaveTeam").click({
+        callback: () => {
+            ApiBridge.joinOwnTeam();
+        }
+    });
+
     loginReg.querySelector(".cancel").click({
         callback: () => {
             SubPub.publish({
@@ -123,12 +130,6 @@ export function init (loginReg) {
                     }
                 }
             });
-
-            // setTimeout(() => {
-            //     resetUserRegister();
-            //     loginReg.querySelector("#inputLoginUserName").value = State.local.userName;
-            //     showLoginRegisterJoin({ which: "login" });
-            // }, 50);
         }
     });    
 
@@ -156,7 +157,7 @@ export function init (loginReg) {
         e.preventDefault();
         ApiBridge.joinTeam({
             teamName: loginReg.querySelector("#inputJoinTeamName").value,
-            password: loginReg.querySelector("#inputJoinPassword").value,
+            passwordForTeam: loginReg.querySelector("#inputJoinPassword").value,
             callback: (response) => {}
         })        
     });
@@ -324,36 +325,40 @@ export function init (loginReg) {
                 });    
             }
 
+            let value = ownTeam ? "none" : "inline";
+            loginReg.querySelector("#buttonLeaveTeam").style.display = value;
+            loginReg.querySelector("#buttonLeaveTeam span").textContent = teamName;
+
             hideCover({cover: "loginRegisterJoin"});
         }
     });
 
-        // event::team:join:failed
-        SubPub.subscribe({
-            event: "event::team:join:failed",
-            listener: (response) => {
-                let message = response.success ? response.payload.message : response.message;
-                console.log(message);
-                let feedback = loginReg.querySelector("#joinForm input[type=submit]+.feedback");
-                switch (message) {
-                    case "no_such_team_name":
-                        feedback = loginReg.querySelector("#inputJoinTeamName+.feedback");
-                        message = "Det verkar inte finnas något lag med det namnet";
-                        break;
-                    case "team_credentials_invalid":
-                        feedback = loginReg.querySelector("#inputJoinPassword+.feedback");
-                        message = "Detta är inte lagets lösenord";
-                        break;
-                    case "invalid_request":
-                    default:
-                        message = "Något strular... kan du försöka igen?"
-                        break;
-                }
-
-                feedback.textContent = message;
-                feedback.classList.add("visible");
+    // event::team:join:failed
+    SubPub.subscribe({
+        event: "event::team:join:failed",
+        listener: (response) => {
+            let message = response.success ? response.payload.message : response.message;
+            console.log(message);
+            let feedback = loginReg.querySelector("#joinForm input[type=submit]+.feedback");
+            switch (message) {
+                case "no_such_team_name":
+                    feedback = loginReg.querySelector("#inputJoinTeamName+.feedback");
+                    message = "Det verkar inte finnas något lag med det namnet";
+                    break;
+                case "team_credentials_invalid":
+                    feedback = loginReg.querySelector("#inputJoinPassword+.feedback");
+                    message = "Detta är inte lagets lösenord";
+                    break;
+                case "invalid_request":
+                default:
+                    message = "Något strular... kan du försöka igen?"
+                    break;
             }
-        });
+
+            feedback.textContent = message;
+            feedback.classList.add("visible");
+        }
+    });
 }
 
 export function showLoginRegisterJoin (data) {
@@ -366,12 +371,11 @@ export function showLoginRegisterJoin (data) {
     let titles = {
         login: "Login",
         registerUser: "Registera dig i Toneic",
-        join: "Joina ett lag",
+        join: "Joina eller byt lag",
         registerTeam: "Registrera ett nytt lag"
     };
 
     document.querySelector("#loginRegisterJoin h1").textContent = titles[which];
-    console.log(titles[which]);
 
     showCover({cover: "loginRegisterJoin"});
 }

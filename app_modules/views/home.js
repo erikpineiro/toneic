@@ -249,15 +249,22 @@ export function init (home) {
 
 }
 
-function joinTeamResponse (response) {
-    if (response.success && response.payload.data.joined) {
-        goToToneic();
-    } else {
-        // TODO
-        console.log(response.message, response.payload.data.message);
-    }    
-}
+// function joinTeamResponse (response) {
+//     if (response.success && response.payload.data.joined) {
+//         goToToneic();
+//     } else {
+//         // TODO
+//         console.log(response.message, response.payload.data.message);
+//     }    
+// }
 function goToToneic () {
+
+    ApiBridge.crosswordsLatestActions({
+        toneicID: State.local.currentToneicID,
+        init: true,
+        callback: (response) => {}
+    })
+
     SubPub.publish({
         event: "event::view",
         detail: { view: "toneic" }

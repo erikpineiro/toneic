@@ -56,6 +56,7 @@ export function init (toneic) {
 
             ApiBridge.crosswordsLatestActions({
                 toneicID: response.payload.data.toneicID,
+                init: true,
             });
 
         }
