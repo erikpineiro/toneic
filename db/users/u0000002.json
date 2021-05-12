@@ -1,16 +1,16 @@
 {
-    "userID": "u0000001",
-    "userName": "lisa",
+    "userID": "u0000002",
+    "userName": "erik",
     "password": "asdasd",
-    "token": "zLBGPnGLX8Vuf",
-    "email": "lisa@er.er",
+    "token": "IBKNUD1sJQTDP",
+    "email": "er@er.com",
     "joinedTeamID": "t0000002",
     "joinedTeamName": "bibas",
     "toneics": [
         {
             "toneicID": "t21v19",
             "teamID": "t0000002",
-            "lastAction": 1
+            "lastAction": 2
         }
     ],
     "points": 0

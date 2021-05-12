@@ -32,6 +32,10 @@ function bridge ($input) {
         }
     }
     if (isset($input["payload"]["teamID"])) {
+
+        if ($input["payload"]["teamID"] === "own:team") {
+            $input["payload"]["teamID"] = aux_OwnTeamIDFromUserID($input["payload"]["userID"]);
+        }
         $data = [
             "kind" => "team",
             "entityID" => $input["payload"]["teamID"]
@@ -158,13 +162,13 @@ function crosswords_latestActions ($payload) {
     }
 
     $filePathTeam = aux_filePathFromTeamID($teamID);
-    $teamData = getFileContents($filePathTeam);
-    $teamToneics = $teamData["toneics"];
+    $teamToneics = aux_ensureToneicForTeam($toneicID, $filePathTeam);
+
     $indexTeamToneic = array_search($toneicID, array_column($teamToneics, 'toneicID'));
     if ($indexTeamToneic !== false) {
         $actions = $teamToneics[$indexTeamToneic]["actions"];
     } else {
-        // TODO: think more about this... team does not have this toneic?
+        // This should not happen since we just created the toneic with aux_ensureToneicForTeam
         $responseData = null;
         $responseMessage = "team_has_no_such_toneic";
         return aux_response($responseData, $responseMessage);
@@ -172,7 +176,7 @@ function crosswords_latestActions ($payload) {
 
     // Number of latest action
     $numbers = array_map( function($action) { return $action["number"]; }, $actions);
-    $topNumber = max($numbers);
+    $topNumber = count($numbers) ? max($numbers) : 0;
 
 
     // Get all actions since last update
@@ -200,7 +204,8 @@ function crosswords_latestActions ($payload) {
 
 
     $responseData = [
-        "actions" => $responseActions
+        "actions" => $responseActions,
+        "init" => $init
     ];
     $responseMessage = "alles_gut";
 
@@ -225,25 +230,8 @@ function crosswords_newAction ($payload) {
     // Make sure that team has an object for this toneic.
     // Team could have toneic already if another user joined for this toneic earlier.
     $filePathTeam = aux_filePathFromTeamID($teamID);
-    $teamData = getFileContents($filePathTeam);
-    $teamToneics = $teamData["toneics"];
+    $teamToneics = aux_ensureToneicForTeam($toneicID, $filePathTeam);
 
-    if (array_search($toneicID, array_column($teamToneics, 'toneicID')) === false) {
-        $teamToneics[] = [
-            "toneicID" => $toneicID,
-            "actions" => []
-        ];
-        $teamUpdate = [ "toneics" => $teamToneics ];
-        $teamUpdate = aux_update($filePathTeam, $teamUpdate);
-        
-        // ... TO DO... what if update didnt go well?
-        $teamData = getFileContents($filePathTeam);
-        $teamToneics = $teamData["toneics"];
-        $message .= $teamUpdate ? ", team_toneic_created_success" : ", team_toneic_created_failed";
-
-    } else {
-        $message .= ", team_toneic_already_in_place";
-    }
 
     // Update the action
     $indexToneic = array_search($toneicID, array_column($teamToneics, 'toneicID'));
@@ -254,7 +242,7 @@ function crosswords_newAction ($payload) {
         $actions = $toneic["actions"];
 
         $numbers = array_map( function($action) { return $action["number"]; }, $actions);
-        $nextNumber = max($numbers) + 1;
+        $nextNumber = count($numbers) ? max($numbers) + 1 : 1;
         $action["number"] = $nextNumber;
 
         // If action is update letter, remove previous updates of this cell (origin)
@@ -424,14 +412,20 @@ function user_joinTeam($payload){
     $teamName = $payload["teamName"];
     $passwordForTeam = $payload["passwordForTeam"];
 
-    $ownTeam = substr($teamID, 0, 3) === "t_u";
+    $ownTeam = (substr($teamID, 0, 3) === "t_u") || ($teamID === "own:team");
 
-    if (!$ownTeam && !$teamID) {
+    if (!$teamID) {
         $teamID = aux_teamIDfromTeamName($payload["teamName"]);
         if (!$teamID) {
             return aux_response($responseDataNotJoined, "no_such_team_name");
         }
     }
+    // if (!$ownTeam && !$teamID) {
+    //     $teamID = aux_teamIDfromTeamName($payload["teamName"]);
+    //     if (!$teamID) {
+    //         return aux_response($responseDataNotJoined, "no_such_team_name");
+    //     }
+    // }
 
     $filePathTeam = $ownTeam ? aux_filePathFromTeamID(aux_OwnTeamIDFromUserID($userID)) : aux_filePathFromTeamID($teamID);
     $teamData = getFileContents($filePathTeam);
@@ -693,6 +687,27 @@ function aux_createUserToneic ($userID, $toneicID, $teamID) {
         return null;
     }
 }
+function aux_ensureToneicForTeam ($toneicID, $filePathTeam) {
+
+    $teamData = getFileContents($filePathTeam);
+    $teamToneics = $teamData["toneics"];
+    if (array_search($toneicID, array_column($teamToneics, 'toneicID')) === false) {
+        $teamToneics[] = [
+            "toneicID" => $toneicID,
+            "actions" => []
+        ];
+        $teamUpdate = [ "toneics" => $teamToneics ];
+        $teamUpdate = aux_update($filePathTeam, $teamUpdate);
+        
+        // ... TO DO... what if update didnt go well?
+        $teamData = getFileContents($filePathTeam);
+        $teamToneics = $teamData["toneics"];
+    }
+    
+    return $teamToneics;
+}
+
+
 
 
 // Response

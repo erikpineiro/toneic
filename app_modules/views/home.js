@@ -168,25 +168,25 @@ export function init (home) {
 
         <div class="ready" id="homeReady">Ready</div>
 
-        <button class="wideButton toneic" id="homeButtonSolveAlone">Lös den på egen hand</button>
-        <button class="wideButton toneic" id="homeButtonSolveTeam" style="display:none;">Lös den med <span>ditt lag</span></button>
+        <button class="wideButton toneic" id="homeButtonSolve">Till veckans Toneic</button>
         <button class="wideButton joinRegister toneic" id="homeButtonJoinTeam" disabled="true">Joina ett lag <span>(du måste vara inloggad)</span></button>
         <button class="wideButton joinRegister toneic" id="homeButtonRegisterTeam" disabled="true">Registrera ett nytt lag <span>(du måste vara inloggad)</span></button>
     `;
+    // <button class="wideButton toneic" id="homeButtonSolveTeam" style="display:none;">Lös den med <span>ditt lag</span></button>
 
 
     // CLICKS
-    home.querySelector("#homeButtonSolveAlone").click({ callback: () => {
-        ApiBridge.joinOwnTeam({
-            callback: (response) => {
-                if (response.success && response.payload.data.joined) {
-                    goToToneic();
-                }
-            }
-        });
+    home.querySelector("#homeButtonSolve").click({ callback: () => {
+        goToToneic();
+        // ApiBridge.joinOwnTeam({
+        //     callback: (response) => {
+        //         if (response.success && response.payload.data.joined) {
+        //         }
+        //     }
+        // });
 
     } });
-    home.querySelector("#homeButtonSolveTeam").click({ callback: goToToneic });
+    // home.querySelector("#homeButtonSolveTeam").click({ callback: goToToneic });
     home.querySelector("#homeButtonJoinTeam").click({ callback: () => LoginRegisterJoin.showLoginRegisterJoin({ which: "join" }) });
     home.querySelector("#homeButtonRegisterTeam").click({ callback: () => LoginRegisterJoin.showLoginRegisterJoin({ which: "registerTeam" }) });
 
@@ -210,13 +210,13 @@ export function init (home) {
         listener: (response) => {
             let { teamName } = response.payload.data;
             if (teamName) {
-                home.querySelector("#homeButtonSolveTeam span").textContent = teamName;
-                home.querySelector("#homeButtonSolveTeam").style.display = "block";
+                // home.querySelector("#homeButtonSolveTeam span").textContent = teamName;
+                // home.querySelector("#homeButtonSolveTeam").style.display = "block";
                 home.querySelector("#homeButtonJoinTeam").textContent = "Byt lag";
             } else {
                 // Joined own team
-                home.querySelector("#homeButtonSolveTeam span").textContent = "ditt lag";
-                home.querySelector("#homeButtonSolveTeam").style.display = "none";
+                // home.querySelector("#homeButtonSolveTeam span").textContent = "ditt lag";
+                // home.querySelector("#homeButtonSolveTeam").style.display = "none";
                 home.querySelector("#homeButtonJoinTeam").textContent = "Joina ett lag";
             }
         }

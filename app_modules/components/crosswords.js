@@ -34,7 +34,11 @@ export class Crosswords {
             event: "event::crosswords:latestActions:success",
             listener: (response) => {
                 console.log(response);
-                let { actions } = response.payload.data;
+                let { actions, init } = response.payload.data;
+
+                if (init) {
+                    this.Cross.reset();
+                }
 
                 actions.sort((a, b) => a.number - b.number);
                 actions.forEach((action, index) => {
@@ -91,7 +95,7 @@ export class Crosswords {
 
                     } else {
                         
-                        cellUpdating.element.textContent = value;
+                        cellUpdating.updateLetter(value);
 
                     }
     
@@ -182,10 +186,16 @@ class Cross {
         // Fill empty squares
         Cell.all.forEach( cell => {
             if (cell.inWords.length === 0) {
-                cell.isEmpty();
+                cell.empty = true;
             }
         });
 
+    }
+
+    reset () {
+        Cell.all.forEach( cell => {
+            !cell.empty && cell.updateLetter("");
+        });
     }
 }
 
@@ -251,7 +261,7 @@ class Cell {
 
     constructor (data) {
         this.data = data;
-        this.data._isEmpty = false;
+        this.data._empty = false;
 
         Cell.all.push(this);
     }
@@ -285,6 +295,13 @@ class Cell {
 
         return this._element = element;
     }
+    get empty () {
+        return this.data._empty;
+    }
+    set empty (boolean) {
+        this.data._empty = boolean;
+        this.element.classList[boolean ? "add" : "remove"]("empty");
+    }
     get inWords () {
         if (this._words) return this._words;
         let words = Word.all.filter( w => w.cells.some(c => samePos(this.data.origin, c.data.origin)));
@@ -314,9 +331,12 @@ class Cell {
         this.element.classList[action]("updating");
 
     }
-    isEmpty () {
-        this._isEmpty = true;
-        this.element.classList.add("empty");
+    // isEmpty () {
+    //     this._empty = true;
+    //     this.element.classList.add("empty");
+    // }
+    updateLetter (value) {
+        this.element.textContent = value;
     }
 }
 

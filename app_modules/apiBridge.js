@@ -152,7 +152,7 @@ export default {
 
         let { callback } = data;
         console.log("Join Own Team Started");
-        this.joinTeam({ teamID: null, teamName: null, callback });
+        this.joinTeam({ teamID: "own:team", teamName: "own:team", callback });
 
     },
 

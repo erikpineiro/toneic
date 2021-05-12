@@ -1,10 +1,10 @@
 {
-    "teamID": "t_u0000001",
-    "teamName": "t_u0000001",
+    "teamID": "t_u0000002",
+    "teamName": "t_u0000002",
     "password": null,
-    "email": "lisa@er.er",
+    "email": "er@er.com",
     "allowedUsers": [
-        "u0000001"
+        "u0000002"
     ],
     "toneics": [
         {

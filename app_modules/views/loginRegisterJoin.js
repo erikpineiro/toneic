@@ -21,8 +21,8 @@ export function init (loginReg) {
                 <p class="feedback">feedback</p>
                 <p id="linkForgotTeam" class="link">Glömt teamets lösenord?</p>
                 <p id="linkToRegisterTeam" class="link">Registrera ett nytt lag</p>
+                </form>
                 <button id="buttonLeaveTeam" class="wideButton" style="display:none;">Lämna <span></span></button>
-            </form>
         </div>
         <div id="registerTeamForm">
             <form class="visible">
@@ -155,6 +155,7 @@ export function init (loginReg) {
     // SUBMITS
     loginReg.querySelector("#joinForm").addEventListener("submit", function(e) {
         e.preventDefault();
+        console.log("Done: Join Form Submit");
         ApiBridge.joinTeam({
             teamName: loginReg.querySelector("#inputJoinTeamName").value,
             passwordForTeam: loginReg.querySelector("#inputJoinPassword").value,

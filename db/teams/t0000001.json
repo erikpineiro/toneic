@@ -1,0 +1,36 @@
+{
+    "teamID": "t0000001",
+    "teamName": "babas",
+    "password": "asdasd",
+    "email": "er@asd.se",
+    "allowedUsers": [
+        "u0000001",
+        "u0000002"
+    ],
+    "toneics": [
+        {
+            "toneicID": "t21v19",
+            "actions": [
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        5,
+                        0
+                    ],
+                    "value": "\u00c5",
+                    "number": 1
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        4,
+                        0
+                    ],
+                    "value": "P",
+                    "number": 2
+                }
+            ]
+        }
+    ],
+    "points": 0
+}
