@@ -376,7 +376,7 @@ function user_register ($payload) {
             // Throw away the return
             team_register([
                 "userID" => $userID,
-                "teamName" => null,
+                "teamName" => aux_OwnTeamIDFromUserID($userID),
                 "teamID" => aux_OwnTeamIDFromUserID($userID),
                 "password" => "xxoo",
                 "email" => $email,
@@ -388,8 +388,8 @@ function user_register ($payload) {
                 "password" => $password,
                 "token" => randomToken(13),
                 "email" => $email,
-                "joinedTeamID" => null,
-                "joinedTeamName" => null,
+                "joinedTeamID" => aux_OwnTeamIDFromUserID($userID),
+                "joinedTeamName" => aux_OwnTeamIDFromUserID($userID),
                 "toneics" => [],
                 "points" => 0        
             ];
@@ -424,7 +424,7 @@ function user_joinTeam($payload){
     $teamName = $payload["teamName"];
     $passwordForTeam = $payload["passwordForTeam"];
 
-    $ownTeam = $teamID === null && $teamName === null;
+    $ownTeam = substr($teamID, 0, 3) === "t_u";
 
     if (!$ownTeam && !$teamID) {
         $teamID = aux_teamIDfromTeamName($payload["teamName"]);

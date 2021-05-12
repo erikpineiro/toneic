@@ -225,7 +225,7 @@ export function init (home) {
     SubPub.subscribe({
         event: "event::user:login:success",
         listener: (response) => {
-            home.querySelector("#homeButtonJoinTeam span").style.display = "none";
+            // home.querySelector("#homeButtonJoinTeam").style.display = "none";
             home.querySelector("#homeButtonJoinTeam").removeAttribute("disabled");
 
             home.querySelector("#homeButtonRegisterTeam span").style.display = "none";
@@ -236,7 +236,7 @@ export function init (home) {
     SubPub.subscribe({
         event: "event::user:logout:success",
         listener: (response) => {
-            home.querySelector("#homeButtonJoinTeam span").style.display = "inline";
+            // home.querySelector("#homeButtonJoinTeam").style.display = "inline";
             home.querySelector("#homeButtonJoinTeam").setAttribute("disabled", "true");
 
             home.querySelector("#homeButtonRegisterTeam span").style.display = "inline";

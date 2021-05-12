@@ -97,12 +97,12 @@ export function init(header) {
     SubPub.subscribe({
         event: "event::team:join:success",
         listener: (response) => {
-            let { teamName } = response.payload.data;
+            let { ownTeam, teamName } = response.payload.data;
 
-            let buttonText = teamName ? "Byt lag" : "Joina ett lag";
+            let buttonText = ownTeam ? "Joina ett lag" : "Byt lag";
             buttonHtml.textContent = buttonText;
 
-            if (teamName) {
+            if (!ownTeam) {
                 teamHtml.classList.remove("invisible");
                 teamHtml.querySelector("span span").textContent = `${teamName}`;
             } else {

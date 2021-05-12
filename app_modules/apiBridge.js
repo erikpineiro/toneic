@@ -131,7 +131,7 @@ export default {
         let userID = State.local.userID;
         let token = State.local.token;
 
-        console.log("Join Team Started", userID, token);
+        console.log("Join Team Started", teamID, token);
 
         _dbFetch({
             requestKind: "request::joinTeam",

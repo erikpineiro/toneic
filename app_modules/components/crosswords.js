@@ -59,7 +59,7 @@ export class Crosswords {
             listener: (response) => {
                 console.log(State.local);
                 ApiBridge.crosswordsLatestActions({                    
-                    toneicID: State.local.toneicID,
+                    toneicID: State.local.currentToneicID,
                     init: true,
                 });
             }

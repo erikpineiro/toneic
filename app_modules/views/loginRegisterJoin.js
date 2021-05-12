@@ -381,6 +381,10 @@ export function showLoginRegisterJoin (data) {
 }
 
 function resetUserRegister () {
+
+    document.querySelector("#registerUserForm form").classList.add("visible");
+    document.querySelector("#registerUserSuccess").classList.remove("visible");
+
     document.querySelectorAll(`#registerUserForm input:not([type="submit"])`).forEach( input => input.value = "");
     document.querySelectorAll(`#registerUserForm input +.feedback`).forEach( feedback => {
         feedback.textContent = "feedback";
@@ -388,6 +392,10 @@ function resetUserRegister () {
     });
 }
 function resetTeamRegister () {
+
+    document.querySelector("#registerTeamForm form").classList.add("visible");
+    document.querySelector("#registerTeamSuccess").classList.remove("visible");
+
     document.querySelectorAll(`#registerTeamForm input:not([type="submit"])`).forEach( input => input.value = "");
     document.querySelectorAll(`#registerUserForm input +.feedback`).forEach( feedback => {
         feedback.textContent = "feedback";
