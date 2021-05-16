@@ -75,7 +75,6 @@ export class Crosswords {
         if (!which) return this.element;
         else return this.element.querySelector(`.${which}`);
     }
-
     keyboardClick (char) {
         let cellUpdating = Cell.updating;
         if (cellUpdating) {
@@ -112,7 +111,6 @@ export class Crosswords {
 
         }
     }
-
     showLegend (description) {
 
         let legend = this.element.querySelector(".legend");
@@ -189,6 +187,13 @@ class Cross {
                 cell.empty = true;
             }
         });
+
+
+        // Numbers for letter cells
+        Cell.all.filter( c => !c.empty ).forEach( (cell, index) => {
+            cell.addNumber(index);
+        });
+
 
     }
 
@@ -320,6 +325,10 @@ class Cell {
     }
     get updating () {
         return this._updating || (this._updating = false);
+    }
+    addNumber (number) {
+        this.element.style.setProperty("--number", `"${number.toString()}"`);
+        this.element.classList.add("number");
     }
     isUpdating (boolean = true) {
 

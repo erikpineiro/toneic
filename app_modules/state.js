@@ -4,7 +4,7 @@ import { SubPub } from "./subpub.js";
 
 export const State = {
 
-    get local() {
+    get local () {
         let _localState = localStorage.getItem("localState");
         if (!_localState) {
             _localState = {
@@ -18,12 +18,12 @@ export const State = {
         return _localState;
     },
 
-    updateLocal(ls) {
+    updateLocal (ls) {
         let __ = JSON.parse(localStorage.getItem("localState") || "{}");
         localStorage.setItem("localState", JSON.stringify({ ...__, ...ls }));
     },
 
-    updateTimeLeft: function(timeLeft) {
+    updateTimeLeft: function (timeLeft) {
         let local = this.local;
         let serverPhase = {...local.serverPhase, timeLeft};
         this.updateLocal({ ...local, serverPhase });
@@ -61,8 +61,9 @@ SubPub.subscribe({
 SubPub.subscribe({
     event: "event::team:join:success",
     listener: (response) => {
-        let { teamName, teamID } = response.payload.data;
-        State.updateLocal({ 
+        let { ownTeam, teamName, teamID } = response.payload.data;
+        State.updateLocal({
+            joinedOwnTeam: ownTeam,
             joinedTeamID: teamID,
             joinedTeamName: teamName
         });

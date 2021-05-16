@@ -1,24 +1,31 @@
 import { myError } from "../error.js";
 import { State } from "../state.js";
 import { SubPub } from "../subpub.js";
+import { startSynch, stopSynch } from "./toneic.js";
 
-// export function showView (data) {
 
-//     let { view } = data;
-//     let currentView = State.get().currentView;
+export function showView (data) {
 
-//     if (view === currentView) {
-//         myError.throw();
-//     }
+    console.log("Show View: ", data);
 
-//     let element = document.querySelector(`#${view}`);
-//     let currentElement = document.querySelector(`#${currentView}`);
+    let { view } = data;
+    let currentView = State.local.currentView;
 
-//     element.style.zIndex = 1; // put it on top of all others
+    if (view === currentView) {
+        myError.throw();
+    }
 
-//     currentElement.classList.add("disappear");
+    if ( view === "toneic" ) { startSynch(); }
+    if (currentView === "toneic") { stopSynch(); }
 
-// }
+    let element = document.querySelector(`#${view}`);
+    let currentElement = document.querySelector(`#${currentView}`);
+
+    element.style.zIndex = 1; // put it on top of all others
+
+    currentElement.classList.add("off");
+
+}
 
 export function showCover (data) {
     let { cover } = data;
@@ -39,24 +46,7 @@ export function hideCover (data) {
 
 }
 
-SubPub.subscribe({
-    event: "event::view",
-    listener: function(detail){
-        let { view } = detail;
-        let currentView = State.local.currentView;
 
-        if (view === currentView) {
-            myError.throw();
-        }
-    
-        let element = document.querySelector(`#${view}`);
-        let currentElement = document.querySelector(`#${currentView}`);
-    
-        element.style.zIndex = 1; // put it on top of all others
-    
-        currentElement.classList.add("off");        
-    }
-});
 SubPub.subscribe({
     event: "event::cover:show",
     listener: function (detail) {

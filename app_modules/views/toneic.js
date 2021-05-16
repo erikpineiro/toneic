@@ -1,12 +1,10 @@
 
 import ApiBridge from "../apiBridge.js";
-import auxiliarFunctions from "../auxiliarFunctions.js";
 import * as Components from "../components/components.js";
 import { State } from "../state.js";
 import { SubPub } from "../subpub.js";
 import { showUserInfo } from "./userInfo.js";
 
-const crosswords = JSON.parse(`{"words": [{"origin": [0,0],"direction": "h","word": "mädrid","description": {"image": null,"podcastTime": 0,"text": "Spaniens huvudstad"}},{"origin": [3, 0],"direction": "v","word": "roma","description": {"image": null,"podcastTime": 0,"text": "huvudstad i regionen Lazio och huvudort och en kommun i storstadsregionen Rom, innan 2015 provinsen Rom."}},{"origin": [2,3],"direction": "h","word": "pariser","description": {"image": null,"podcastTime": 0,"text": "Tête de veaux"}},{"origin": [5,2],"direction": "v","word": "lima","description": {"image": "image_21v17_5_2v.jpg","podcastTime": 0,"text": ""}}],"multipliers": [{"origin": [0,0],"factor": 2}]}`);
 
 export function init (toneic) {
 
@@ -64,4 +62,28 @@ export function init (toneic) {
         
 }
 
+export function startSynch () {
 
+    if (!State.local.token || !State.local.userID) {
+        console.log("user_not_loggedIn_nothing_to_synch");
+        return;
+    }
+
+    if (State.joinedOwnTeam) {
+        console.log("user_on_own_team_nothing_to_synch");
+        return;
+    }
+
+    if (!State.local.synchIntervalID) {
+        State.updateLocal({
+            synchIntervalID:    setInterval(function () {
+                                    ApiBridge.crosswordsSynch({
+                                        toneicID: State.local.currentToneicID,
+                                    });
+                                }, 4000)
+        })
+    }
+}
+export function stopSynch () {
+    State.local.synchIntervalID && clearInterval(State.local.synchIntervalID);
+}

@@ -9,7 +9,71 @@
     "toneics": [
         {
             "toneicID": "t21v19",
-            "actions": []
+            "actions": [
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        5,
+                        0
+                    ],
+                    "value": "Y",
+                    "number": 1
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        0,
+                        0
+                    ],
+                    "value": "E",
+                    "number": 2
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        1,
+                        0
+                    ],
+                    "value": "R",
+                    "number": 3
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        2,
+                        0
+                    ],
+                    "value": "T",
+                    "number": 4
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        3,
+                        0
+                    ],
+                    "value": "Y",
+                    "number": 5
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        3,
+                        1
+                    ],
+                    "value": "Y",
+                    "number": 6
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        3,
+                        2
+                    ],
+                    "value": "U",
+                    "number": 7
+                }
+            ]
         }
     ],
     "points": 0

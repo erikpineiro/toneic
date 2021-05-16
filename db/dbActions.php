@@ -420,12 +420,7 @@ function user_joinTeam($payload){
             return aux_response($responseDataNotJoined, "no_such_team_name");
         }
     }
-    // if (!$ownTeam && !$teamID) {
-    //     $teamID = aux_teamIDfromTeamName($payload["teamName"]);
-    //     if (!$teamID) {
-    //         return aux_response($responseDataNotJoined, "no_such_team_name");
-    //     }
-    // }
+
 
     $filePathTeam = $ownTeam ? aux_filePathFromTeamID(aux_OwnTeamIDFromUserID($userID)) : aux_filePathFromTeamID($teamID);
     $teamData = getFileContents($filePathTeam);

@@ -107,7 +107,9 @@ export default {
         });        
         
     },
-
+    crosswordsSynch: function (data) {
+        this.crosswordsLatestActions(data);
+    },
 
     entityExists: function (data) {
         let { entity, key, value } = data;
@@ -331,9 +333,6 @@ function _get (data) {
     input.payload = input.payload || "none";
 
     let inputString = "?input=" + JSON.stringify(input);
-    // let paramString = parameters.length ?
-    //                                 "?" + parameters.reduce((acc, pair, index) => acc + `${(index > 0) ? "&" : ""}${pair[0]}=${pair[1]}`, "")
-    //                                 : "";
 
     let request = new Request(url + inputString, {
         method: "GET",

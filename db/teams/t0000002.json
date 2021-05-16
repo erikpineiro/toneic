@@ -28,6 +28,78 @@
                     ],
                     "value": "Y",
                     "number": 2
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        5,
+                        2
+                    ],
+                    "value": "Y",
+                    "number": 3
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        5,
+                        3
+                    ],
+                    "value": "U",
+                    "number": 4
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        5,
+                        4
+                    ],
+                    "value": "I",
+                    "number": 5
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        5,
+                        5
+                    ],
+                    "value": "O",
+                    "number": 6
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        3,
+                        0
+                    ],
+                    "value": "Y",
+                    "number": 8
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        3,
+                        1
+                    ],
+                    "value": "Y",
+                    "number": 9
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        3,
+                        2
+                    ],
+                    "value": "J",
+                    "number": 10
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        3,
+                        3
+                    ],
+                    "value": "O",
+                    "number": 11
                 }
             ]
         }

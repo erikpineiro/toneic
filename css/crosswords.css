@@ -7,7 +7,7 @@
 
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-end;
 
     font-family: var(--ft3);
     font-size: var(--szFontCross);
@@ -24,19 +24,29 @@
     background-color: var(--cUpdating);
     color: rgba(0,0,0,.5);
 }
-.cell.multiplier::before {
-    content: "x";
+.cell.multiplier::after, .cell.number::before {
     position: absolute;
     pointer-events: none;
-    top: 0px;
-    left: 3px;
-    font-size: 12px;
+    font-size: 10px;
     font-family: var(--ft2);
-    color: var(--cMultiplier);
-    opacity: .6;
+    font-weight: 100;
+    top: -2px;
 }
-.cell.mult2::before {
+.cell.multiplier::after {
+    content: "x";
+    right: 1px;
+    color: var(--cMultiplier);
+}
+.cell.mult2::after {
     content: "x2";
+}
+.cell.number {
+    --number: "0"; /* from JS */ 
+}
+.cell.number::before {
+    content: var(--number);
+    left: 1px;
+    color: black;
 }
 
 
