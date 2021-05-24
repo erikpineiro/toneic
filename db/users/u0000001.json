@@ -2,7 +2,7 @@
     "userID": "u0000001",
     "userName": "lisa",
     "password": "asdasd",
-    "token": "v0Cc1Sttfwh0b",
+    "token": "3grnTGw9yOIr7",
     "email": "lisa@er.er",
     "joinedTeamID": "t0000002",
     "joinedTeamName": "bibas",
@@ -11,6 +11,11 @@
             "toneicID": "t21v19",
             "teamID": "t0000002",
             "lastAction": 11
+        },
+        {
+            "toneicID": "t21v21",
+            "teamID": "t0000002",
+            "lastAction": 0
         }
     ],
     "points": 0
