@@ -123,3 +123,7 @@
     margin: 0px;
     margin-right: 2vh;
 }
+#toneicContent .podcast audio {
+    display: block;
+    width: 100%;
+}

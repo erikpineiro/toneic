@@ -1,4 +1,4 @@
-import ApiBridge from "../apiBridge.js";
+import { ApiBridge } from "../apiBridge.js";
 import { myError } from "../error.js";
 import { State } from "../state.js";
 import { SubPub } from "../subpub.js";
@@ -46,7 +46,7 @@ export class Crosswords {
                         
                         switch (action.kind) {
                             case "letterUpdate":
-                                Cell.fromOrigin(action.origin).element.textContent = action.value;
+                                this.Cross.cellFromOrigin(action.origin).element.textContent = action.value;
                                 break;
                             default:
                                 myError.throw();
@@ -102,7 +102,7 @@ export class Crosswords {
             });
 
             // Next cell in word becomes updating
-            let nextCell = Word.active.nextCell(cellUpdating);
+            let nextCell = this.Cross.activeWord.nextCell(cellUpdating);
             if (nextCell !== null) {
                 nextCell.isUpdating();
             } else {
@@ -161,28 +161,38 @@ class Cross {
     
 
         // Create cells
+        this._allCells = [];
         for (let row = 0; row < height; row++) {
             for (let col = 0; col < width; col++) {
                 let multiplier = data.crosswords.multipliers.find( m => samePos(m.origin, [col, row]));
                 multiplier = multiplier ? multiplier.factor : 1;
-                let cell = (new Cell({ 
-                                        origin: [col, row],
-                                        multiplier,
-                                        main: this.data.main
-                                    })).element;
-                element.append(cell);
+                let cell = new Cell({ 
+                    origin: [col, row],
+                    multiplier,
+                    main: this.data.main,
+                    Cross: this,
+                });
+                this._allCells.push(cell);
+                // let cell = (new Cell({ 
+                //                         origin: [col, row],
+                //                         multiplier,
+                //                         main: this.data.main,
+                //                         Cross: this,
+                //                     })).element;
+                element.append(cell.element);
             }
         }
 
 
         // Create words
+        this._allWords = [];
         data.crosswords.words.forEach( word => {
-            new Word({ ...data, ...word });
+            this._allWords.push( new Word({ ...data, ...word, Cross: this }) );
         });
 
         
         // Fill empty squares
-        Cell.all.forEach( cell => {
+        this.allCells.forEach( cell => {
             if (cell.inWords.length === 0) {
                 cell.empty = true;
             }
@@ -190,7 +200,7 @@ class Cross {
 
 
         // Numbers for letter cells
-        Cell.all.filter( c => !c.empty ).forEach( (cell, index) => {
+        this.allCells.filter( c => !c.empty ).forEach( (cell, index) => {
             cell.addNumber(index);
         });
 
@@ -198,32 +208,47 @@ class Cross {
     }
 
     reset () {
-        Cell.all.forEach( cell => {
+        this.allCells.forEach( cell => {
             !cell.empty && cell.updateLetter("");
         });
+    }
+
+    get allWords () {
+        return this._allWords;
+    }
+    get activeWord () {
+        return this.allWords.find( w => w.active );
+    }
+    get allCells () {
+        return this._allCells;
+    }
+    get cellUpdating () {
+        return this.allCells.find(c => c._updating);
+    }
+    cellFromOrigin (origin) {
+        return this.allCells.find(c => samePos(c.data.origin, origin));
     }
 }
 
 class Word {
 
-    static all = [];
-    static get active() {
-        return Word.all.find( w => w.active );
-    }
+    // static all = [];
+    // static get active() {
+    //     return Word.all.find( w => w.active );
+    // }
 
     constructor (data) {
         this.data = data;
-        Word.all.push(this);
 
         this.cells = [];
 
         if (this.data.direction === "h") {
             for (let col = 0; col < this.data.length; col++) {
-                this.cells.push(Cell.all.find(c => samePos(c.data.origin, [this.data.origin[0] + col, this.data.origin[1]])));
+                this.cells.push(this.data.Cross.allCells.find(c => samePos(c.data.origin, [this.data.origin[0] + col, this.data.origin[1]])));
             }
         } else {
             for (let row = 0; row < this.data.length; row++) {
-                this.cells.push(Cell.all.find(c => samePos(c.data.origin, [this.data.origin[0], this.data.origin[1] + row])));
+                this.cells.push(this.data.Cross.allCells.find(c => samePos(c.data.origin, [this.data.origin[0], this.data.origin[1] + row])));
             }
         }
 
@@ -234,7 +259,9 @@ class Word {
     }
     activate (boolean = true) {
 
-        let currentlyActive = Word.active;
+        let currentlyActive = this.data.Cross.activeWord;
+
+        console.log("Activate Word", boolean, currentlyActive, this.data.origin);
         (currentlyActive && currentlyActive !== this) && currentlyActive.activate(false);
         
         this._active = boolean;
@@ -260,15 +287,13 @@ class Word {
 
 class Cell {
 
-    static all = [];
-    static fromOrigin (origin) { return Cell.all.find(c => samePos(c.data.origin, origin)); }
-    static get updating () { return Cell.all.find(c => c._updating); }
+    // static all = [];
+    // static fromOrigin (origin) { return Cell.all.find(c => samePos(c.data.origin, origin)); }
+    // static get updating () { return Cell.all.find(c => c._updating); }
 
     constructor (data) {
         this.data = data;
         this.data._empty = false;
-
-        Cell.all.push(this);
     }
 
     get element () {
@@ -309,7 +334,8 @@ class Cell {
     }
     get inWords () {
         if (this._words) return this._words;
-        let words = Word.all.filter( w => w.cells.some(c => samePos(this.data.origin, c.data.origin)));
+        let words = this.data.Cross.allWords.filter( w => w.cells.some(c => samePos(this.data.origin, c.data.origin)));
+        // let words = Word.all.filter( w => w.cells.some(c => samePos(this.data.origin, c.data.origin)));
         return this._words = words;
     }
     get myCurrentWord() {
@@ -351,8 +377,6 @@ class Cell {
 
 class Keyboard {
 
-    static decalees = ["Z", "X", "C", "V", "B", "N", "M", "clear"];
-
     constructor(data) {
         this.data = data;
         let element = data.main.getElement("keyboard");
@@ -371,11 +395,13 @@ class Key {
 
         this.element = document.createElement("button");
         
+        const Decalees = ["Z", "X", "C", "V", "B", "N", "M", "clear"];        
+
         if (data.char) {
             if (data.char === "clear") {
                 this.element.classList.add("clear");
             }
-            if (Keyboard.decalees.includes(data.char)) {
+            if (Decalees.includes(data.char)) {
                 this.element.classList.add("decalee");
             }
             this.element.textContent = data.char;

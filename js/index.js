@@ -1,12 +1,13 @@
 "use strict";
 
-import { myError } from "../app_modules/error.js";
+// import { myError } from "../app_modules/error.js";
 import { SubPub } from "../app_modules/subpub.js";
 import { State } from "../app_modules/state.js";
-import * as View from "../app_modules/views/views.js"
+import { View } from "../app_modules/views/views.js";
 import { Waiter } from "../app_modules/waiter.js";
-import auxiliarFunctions from "../app_modules/auxiliarFunctions.js";
-import ApiBridge from "../app_modules/apiBridge.js";
+import { ApiBridge } from "../app_modules/apiBridge.js";
+import "../app_modules/behaviour.js";
+
 
 
 // TEST
@@ -76,10 +77,12 @@ document.querySelector("#init").classList.remove("instant");
 SubPub.subscribe({
     event: "event::leaveInit",
     listener: function (){
-        SubPub.publish({
-            event: "event::cover:hide",
-            detail: { cover: "init" }
-        });
+        View.hideCover({ cover: "init" });
+
+        // SubPub.publish({
+        //     event: "event::cover:hide",
+        //     detail: { cover: "init" }
+        // });
     }
 });
 new Waiter({
@@ -96,7 +99,7 @@ View.Home.init(document.querySelector("#home"));
 View.Header.init(document.querySelector("#header"));
 View.Toneic.init(document.querySelector("#toneic"));
 View.Menu.init(document.querySelector("#menu"));
-View.LoginRegisterJoin.init(document.querySelector("#loginRegisterJoin"));
+View.LRJ.init(document.querySelector("#loginRegisterJoin"));
 View.UserInfo.init(document.querySelector("#userInfo"));
 
 

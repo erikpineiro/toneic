@@ -11,7 +11,7 @@ const SHOW_OBJECT_RESPONSE = !SHOW_RAW_RESPONSE;
 
 
 
-export default {
+export const ApiBridge = {
 
     loadToneic: function (data) {
         

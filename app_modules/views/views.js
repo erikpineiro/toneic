@@ -1,50 +1,64 @@
 import { myError } from "../error.js";
 import { State } from "../state.js";
 import { SubPub } from "../subpub.js";
-import { startSynch, stopSynch } from "./toneic.js";
+
+import { LRJ } from "./loginRegisterJoin.js";
+import { Home } from "./home.js";
+import { Toneic } from "./toneic.js";
+import { Header } from "./header.js";
+import { Menu } from "./menu.js";
+import { UserInfo } from "./userInfo.js";
 
 
-export function showView (data) {
+export const View = {
+    LRJ,
+    Home,
+    Toneic,
+    Header,
+    Menu,
+    UserInfo,
+    
+    showView: function (data) {
 
-    console.log("Show View: ", data);
+        console.log("Show View: ", data);
 
-    let { view } = data;
-    let currentView = State.local.currentView;
+        let { view } = data;
+        let currentView = State.local.currentView;
+    
+        if (view === currentView) {
+            myError.throw();
+        }
+    
+        if ( view === "toneic" ) { Toneic.startSynch(); }
+        if (currentView === "toneic") { Toneic.stopSynch(); }
+    
+        let element = document.querySelector(`#${view}`);
+        let currentElement = document.querySelector(`#${currentView}`);
+    
+        element.style.zIndex = 1; // put it on top of all others
+    
+        currentElement.classList.add("off");
+    
+    },
 
-    if (view === currentView) {
-        myError.throw();
+    showCover: function (data) {
+        let { cover } = data;
+        let element = document.querySelector(`#${cover}`);
+        element.classList.remove("off");
+        element.classList.add("on");
+    },
+    
+    hideCover: function (data) {
+        let { cover } = data;
+        let element = document.querySelector(`#${cover}`);    
+        element.classList.add("off");
+    
+        let transitionTime = parseFloat(getComputedStyle(element).getPropertyValue("--transitionTime"));
+        setTimeout(() => {
+            element.classList.remove("on");
+        }, transitionTime * 1000);
     }
-
-    if ( view === "toneic" ) { startSynch(); }
-    if (currentView === "toneic") { stopSynch(); }
-
-    let element = document.querySelector(`#${view}`);
-    let currentElement = document.querySelector(`#${currentView}`);
-
-    element.style.zIndex = 1; // put it on top of all others
-
-    currentElement.classList.add("off");
-
-}
-
-export function showCover (data) {
-    let { cover } = data;
-    let element = document.querySelector(`#${cover}`);
-    element.classList.remove("off");
-    element.classList.add("on");
-}
-
-export function hideCover (data) {
-    let { cover } = data;
-    let element = document.querySelector(`#${cover}`);    
-    element.classList.add("off");
-
-    let transitionTime = parseFloat(getComputedStyle(element).getPropertyValue("--transitionTime"));
-    setTimeout(() => {
-        element.classList.remove("on");
-    }, transitionTime * 1000);
-
-}
+};
 
 
 SubPub.subscribe({
@@ -56,21 +70,5 @@ SubPub.subscribe({
         element.classList.add("on");
     }
 });
-SubPub.subscribe({
-    event: "event::cover:hide",
-    listener: function (detail) {
-        let { cover } = detail;
-        let element = document.querySelector(`#${cover}`);    
-        element.classList.add("off");
-        element.addEventListener("transitionend", () => { element.classList.remove("on"); });
-        
-    }
-});
 
 
-export * as Home from "./home.js";
-export * as Toneic from "./toneic.js";
-export * as Header from "./header.js";
-export * as Menu from "./menu.js";
-export * as LoginRegisterJoin from "./loginRegisterJoin.js";
-export * as UserInfo from "./userInfo.js";
