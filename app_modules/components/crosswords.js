@@ -76,7 +76,8 @@ export class Crosswords {
         else return this.element.querySelector(`.${which}`);
     }
     keyboardClick (char) {
-        let cellUpdating = Cell.updating;
+        // let cellUpdating = Cell.updating;
+        let cellUpdating = this.Cross.cellUpdating;
         if (cellUpdating) {
 
             let value = char === "clear" ? "" : char;
@@ -123,7 +124,7 @@ export class Crosswords {
     
             legend.querySelector(".legend .text").textContent = description.text;
             if (description.image) {
-                let imageSrc = `../../../db/toneics/${State.local.currentToneicID}/${description.image}`;
+                let imageSrc = `./db/toneics/${State.local.currentToneicID}/${description.image}`;
                 legend.querySelector(".legend img").setAttribute("src", imageSrc);    
             }
 
@@ -173,12 +174,6 @@ class Cross {
                     Cross: this,
                 });
                 this._allCells.push(cell);
-                // let cell = (new Cell({ 
-                //                         origin: [col, row],
-                //                         multiplier,
-                //                         main: this.data.main,
-                //                         Cross: this,
-                //                     })).element;
                 element.append(cell.element);
             }
         }
@@ -232,11 +227,6 @@ class Cross {
 
 class Word {
 
-    // static all = [];
-    // static get active() {
-    //     return Word.all.find( w => w.active );
-    // }
-
     constructor (data) {
         this.data = data;
 
@@ -287,10 +277,6 @@ class Word {
 
 class Cell {
 
-    // static all = [];
-    // static fromOrigin (origin) { return Cell.all.find(c => samePos(c.data.origin, origin)); }
-    // static get updating () { return Cell.all.find(c => c._updating); }
-
     constructor (data) {
         this.data = data;
         this.data._empty = false;
@@ -317,7 +303,8 @@ class Cell {
                 }
 
                 object.myCurrentWord.activate();
-                Cell.updating && Cell.updating.isUpdating(false);
+                this.data.Cross.cellUpdating && this.data.Cross.cellUpdating.isUpdating(false);
+                // Cell.updating && Cell.updating.isUpdating(false);
                 this.isUpdating();
 
             }
@@ -358,7 +345,8 @@ class Cell {
     }
     isUpdating (boolean = true) {
 
-        let currentlyUpdating = Cell.updating;
+        // let currentlyUpdating = Cell.updating;
+        let currentlyUpdating = this.data.Cross.cellUpdating;
         (currentlyUpdating && currentlyUpdating !== this) && currentlyUpdating.isUpdating(false);
 
         this._updating = boolean;
@@ -366,10 +354,7 @@ class Cell {
         this.element.classList[action]("updating");
 
     }
-    // isEmpty () {
-    //     this._empty = true;
-    //     this.element.classList.add("empty");
-    // }
+
     updateLetter (value) {
         this.element.textContent = value;
     }

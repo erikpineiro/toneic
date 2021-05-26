@@ -2,6 +2,7 @@
 import { ApiBridge } from "../apiBridge.js";
 import { Components } from "../components/components.js";
 import { State } from "../state.js";
+import { Utils } from "../utils.js";
 import { SubPub } from "../subpub.js";
 
 
@@ -17,13 +18,10 @@ export const Toneic = {
                     <div class="timeLeft">Tävlingen avslutas kl20:00 (tid kvar:&nbsp<span></span>)</div>
                 </div>
                 <div class="podcast">
-                    <audio
-                        controls
-                        autoplay = "true"
-                        muted = "true"
-                        >
+                    <audio>
                         Neeej! Din webbläsare kan inte spela podden :-(.
                     </audio>
+                    <div id="podControls"></div>
                 </div>
                 <div class="crosswords">Hämtar veckans Toneic...</div>
             </div>
@@ -38,6 +36,11 @@ export const Toneic = {
         // }, 1000);
     
         
+        PodControls({
+            controls: toneic.querySelector("#podControls"),
+            audio: toneic.querySelector("audio")
+        });
+
     
         SubPub.subscribe({
             event: "event::serverPhase:success",
@@ -103,7 +106,45 @@ export const Toneic = {
     }
 };
 
+function PodControls(data) {
+    let { controls, audio } = data;
 
+    audio.volume = 1;
+
+    controls.innerHTML = `
+        <span class="fbSpan">
+            <button class="back b60">-60s</button>
+            <button class="back b15">-15s</button>
+        </span>
+        <span class="timeSpan">
+            <button class="play">Play</button>
+            <span class="currentTime">00:00</span>
+            <span class="totalTime">/<span>--:--</span></span>
+        </span>
+        <span class="fbSpan">
+            <button class="front f15">+15s</button>
+            <button class="front f60">+60s</button>
+        </span>
+    `;
+
+    controls.querySelector(".b60").click({ callback: () => { audio.currentTime -= 60 } });
+    controls.querySelector(".b15").click({ callback: () => { audio.currentTime -= 15 } });
+    controls.querySelector(".f60").click({ callback: () => { audio.currentTime += 60 } });
+    controls.querySelector(".f15").click({ callback: () => { audio.currentTime += 15 } });
+    
+    controls.querySelector(".play").click({ callback: function() { 
+        audio.paused ? audio.play() : audio.pause();
+        this.textContent = audio.paused ? "Play" : "Pause";
+    } });
+
+    audio.addEventListener("loadedmetadata", function(){
+        controls.querySelector(".totalTime span").textContent = Utils.hoursMinsSecs(Math.floor(audio.duration));
+    });
+
+    audio.addEventListener("timeupdate", function(){
+        controls.querySelector(".currentTime").textContent = Utils.hoursMinsSecs(Math.floor(audio.currentTime));
+    });
+}
 
 // export function init (toneic) {
 

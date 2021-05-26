@@ -1,5 +1,5 @@
 
-export default {
+export const Utils = {
 
    random: {
       int: function(min, max = null) {
@@ -20,9 +20,17 @@ export default {
      }
    },
 
-   minSecs: function(time){
+   minSecs: function (time) {
       if (parseInt(time) !== time) return "--:--";
       return this.nDigits(Math.floor(time/60)) + ":" + this.nDigits(time%60);
+   },
+
+   hoursMinsSecs: function (time) {
+      if (time < 3600) {
+         return this.minSecs(time);
+      }
+      
+      return `${Math.floor(time/3600)}:${this.minSecs(time%3600)}`;
    },
 
    nDigits: function(number, nDigits = 2){
