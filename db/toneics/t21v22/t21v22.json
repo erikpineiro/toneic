@@ -1,0 +1,157 @@
+{
+    "podcast": "podCastName",
+    "title": "Toneic Title",
+    "guests": ["Wonder Woman", "Superman"],
+    "crosswords": {
+        "words": [
+            {
+                "origin": [0,0],
+                "direction": "h",
+                "word": "studio album",
+                "description": {
+                    "image": "image_0_0h.png",
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [6, 0],
+                "direction": "v",
+                "word": "ame rika",
+                "description": {
+                    "image": "image_6_0v.jpg",
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [7,0],
+                "direction": "v",
+                "word": "lira",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": "Gick i Rom"
+                }
+            },
+            {
+                "origin": [8,0],
+                "direction": "v",
+                "word": "brillor",
+                "description": {
+                    "image": "image_8_0v.jpg",
+                    "podcastTime": 0,
+                    "text": "Inte samma sak utan..."
+                }
+            },
+            {
+                "origin": [6,1],
+                "direction": "h",
+                "word": "mir",
+                "description": {
+                    "image": "image_6_1h.jpg",
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [1,2],
+                "direction": "v",
+                "word": "paul",
+                "description": {
+                    "image": "image_1_2v.jpg",
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [3,2],
+                "direction": "v",
+                "word": "ziggy",
+                "description": {
+                    "image": "image_3_2v.jpg",
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [6,2],
+                "direction": "h",
+                "word": "erin",
+                "description": {
+                    "image": "image_6_2h.jpg",
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [0,3],
+                "direction": "h",
+                "word": "janis",
+                "description": {
+                    "image": "image_0_3h.jpg",
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [6,3],
+                "direction": "h",
+                "word": "rally",
+                "description": {
+                    "image": "image_6_3h.jpg",
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [6,5],
+                "direction": "h",
+                "word": "knott",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": "Mardrömmen i svärmform"
+                }
+            },
+            {
+                "origin": [5,6],
+                "direction": "h",
+                "word": "camry",
+                "description": {
+                    "image": "image_5_6h.jpg",
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [7,5],
+                "direction": "v",
+                "word": "nm",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": "Manhattan Projects hem"
+                }
+            },
+            {
+                "origin": [9,5],
+                "direction": "v",
+                "word": "typ",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": "Ungefär bland polare"
+                }
+            }
+
+
+        ],
+        "multipliers": [
+            {
+                "origin": [0,0],
+                "factor": 2
+            }
+        ]
+    }
+}

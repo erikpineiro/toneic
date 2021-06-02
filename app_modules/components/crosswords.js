@@ -242,6 +242,13 @@ class Word {
             }
         }
 
+        // Mark word separations
+        console.log(data.spaces);
+        let word = this;
+        data.spaces.forEach( sp => {
+            word.cells[sp].element.classList.add(this.data.direction + "_separator");
+        });
+
     }
 
     get active () {
