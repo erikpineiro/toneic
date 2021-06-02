@@ -130,11 +130,30 @@ function get_loadToneic ($payload) {
 
     $responseMessage = $responseData ? "alles_gut" : "no_file_contents";
 
-    // Remove all solutions
-    foreach ($responseData["crosswords"]["words"] as &$words) {
-        $words["length"] = strlen($words["word"]);
-        unset($words["word"]);
+    // Remove solutions and Add info about white spaces
+    foreach ($responseData["crosswords"]["words"] as &$word) {
+        $chars = $word["word"];
+        $word["length"] = strlen($word["word"]);
+        unset($word["word"]);
+
+        $offSet = 0;
+        $safety = 0;
+        $word["spaces"] = [];
+        while (strpos($chars, " ", $offSet) && ++$safety < 10) {
+            // echo "<br>$chars, $offSet, ".strpos($chars, " ", $offSet);
+            $word["spaces"][] = strpos($chars, " ", $offSet);
+            $offSet = strpos($chars, " ", $offSet) + 1;
+        }
+
+        $word["length"] -= count($word["spaces"]);
     }
+
+
+    // Remove all solutions
+    // foreach ($responseData["crosswords"]["words"] as &$word) {
+    //     $word["length"] = strlen($word["word"]);
+    //     unset($word["word"]);
+    // }
 
     $responseData["toneicID"] = $toneicID;
     return aux_response($responseData, $responseMessage);

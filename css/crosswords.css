@@ -49,6 +49,32 @@
     color: black;
 }
 
+.cell.h_separator::after {
+    --size: 2vh;
+    content: "";
+    position: absolute;
+    top: calc(50% - .5 * var(--size));
+    left: calc(-.25 * var(--size));
+    width: calc(.5 * var(--size));
+    height: var(--size);
+    /* background-image: linear-gradient(120deg, #eaee44, #33d0ff); */
+    background-image: url(../images/h_separator.png);
+    background-size: cover;
+    opacity: .7;
+}
+.cell.v_separator::after {
+    --size: 2vh;
+    content: "";
+    position: absolute;
+    top: calc(-.25 * var(--size));
+    left: calc(50% - .5 * var(--size));
+    width: var(--size);
+    height: calc(.5 * var(--size));
+    /* background-image: linear-gradient(120deg, #eaee44, #33d0ff); */
+    background-image: url(../images/v_separator.png);
+    background-size: cover;
+    opacity: .7;
+}
 
 .cross {
     --szFontCross: 0;    /* From JS */
@@ -69,7 +95,7 @@
 .keyboard {
     display: grid;
     grid-template-columns: repeat(11, 1fr);
-    grid-auto-rows: 7vh;
+    grid-auto-rows: minmax(35px, 45px);
     gap: 2px;
     
     padding: 1vh; 
