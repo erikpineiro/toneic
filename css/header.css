@@ -23,7 +23,7 @@
     flex-basis: var(--szLogoMini);
 }
 #header .logo .text {
-    margin-left: 1vh;
+    margin-left: 1vw;
     display: flex;
     align-items: center;
     font-size: calc(.7 * var(--szLogoMini));

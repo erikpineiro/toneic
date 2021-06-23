@@ -195,9 +195,18 @@ class Cross {
 
 
         // Numbers for letter cells
-        this.allCells.filter( c => !c.empty ).forEach( (cell, index) => {
-            cell.addNumber(index);
+        let repeats = 0;
+        data.crosswords.words.forEach( (word, index) => {
+            if (index > 0 && samePos(word.origin, data.crosswords.words[index - 1])) {
+                // this word has same origin as last one.
+                repeats++;
+            }
+            this.cellFromOrigin(word.origin).addNumber(index - repeats);
         });
+
+        // this.allCells.filter( c => !c.empty ).forEach( (cell, index) => {
+        //     cell.addNumber(index);
+        // });
 
 
     }
