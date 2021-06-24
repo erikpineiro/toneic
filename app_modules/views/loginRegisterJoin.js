@@ -91,28 +91,30 @@ export const LRJ = {
                 // });
             }
         });
+
+        let _showLoginRegisterJoin = LRJ.showLoginRegisterJoin;
     
         loginReg.querySelector("#linkToRegisterTeam").click({
             callback: () => {
-                showLoginRegisterJoin({ which: "registerTeam" });
+                _showLoginRegisterJoin({ which: "registerTeam" });
             }
         });    
     
         loginReg.querySelector("#linkToRegisterUser").click({
             callback: () => {
-                showLoginRegisterJoin({ which: "registerUser" })
+                _showLoginRegisterJoin({ which: "registerUser" })
             }
         });    
     
         loginReg.querySelector("#linkToLoginUser").click({
             callback: () => {
-                showLoginRegisterJoin({ which: "login" })
+                _showLoginRegisterJoin({ which: "login" })
             }
         });    
     
         loginReg.querySelector("#linkToJoinTeam").click({
             callback: () => {
-                showLoginRegisterJoin({ which: "join" })
+                _showLoginRegisterJoin({ which: "join" })
             }
         });    
     

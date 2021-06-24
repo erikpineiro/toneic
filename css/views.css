@@ -141,7 +141,7 @@
 #toneic #podControls .fbSpan {
     padding: 0px;
     margin: 0px var(--internalPad);
-    background-color: whitesmoke;
+    /* background-color: whitesmoke; */
 }
 #toneic #podControls .timeSpan {
     flex-grow: 1;

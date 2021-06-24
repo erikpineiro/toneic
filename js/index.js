@@ -70,6 +70,11 @@ function storage(){
 storage();
 
 
+// RESET TONEIC SYNCH
+State.updateLocal({
+    synchIntervalID: 0,
+})
+
 
 // INIT COVER
 document.querySelector("#init").classList.add("on", "instant");

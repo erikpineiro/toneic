@@ -31,8 +31,8 @@ export const Home = {
             <div class="ready" id="homeReady">Ready</div>
     
             <button class="wideButton toneic" id="homeButtonSolve">Till veckans Toneic</button>
-            <button class="wideButton joinRegister toneic" id="homeButtonJoinTeam" disabled="true">Joina ett lag <span>(du måste vara inloggad)</span></button>
-            <button class="wideButton joinRegister toneic" id="homeButtonRegisterTeam" disabled="true">Registrera ett nytt lag <span>(du måste vara inloggad)</span></button>
+            <button class="wideButton joinRegister toneic" id="homeButtonJoinTeam" disabled="true">Joina ett lag <span>(logga in först)</span></button>
+            <button class="wideButton joinRegister toneic" id="homeButtonRegisterTeam" disabled="true">Registrera ett nytt lag <span>(logga in först)</span></button>
         `;
     
     
@@ -82,6 +82,7 @@ export const Home = {
         SubPub.subscribe({
             event: "event::user:logout:success",
             listener: (response) => {
+                home.querySelector("#homeButtonJoinTeam span").style.display = "inline";
                 home.querySelector("#homeButtonJoinTeam").setAttribute("disabled", "true");
     
                 home.querySelector("#homeButtonRegisterTeam span").style.display = "inline";

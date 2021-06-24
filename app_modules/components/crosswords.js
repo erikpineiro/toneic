@@ -16,6 +16,7 @@ export class Crosswords {
 
         element.innerHTML = `
             <div class="cross"></div>
+            <div class="keyboard"></div>
             <div class="legend">
                 <div class="image">
                     <img>
@@ -23,7 +24,6 @@ export class Crosswords {
                 <div class="text"></div>
                 <div class="podcastTime"></div>
             </div>
-            <div class="keyboard"></div>
         `;
 
         data = {...data, main: this};

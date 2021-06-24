@@ -1,7 +1,7 @@
 
 button {
 
-    --ftSizeMain: calc( .45 * var(--hMainButton));
+    --ftSizeMain: calc( .4 * var(--hMainButton));
 
     position: relative;
     border-radius: var(--bRMainButton);

@@ -40,7 +40,26 @@
         },
         {
             "toneicID": "t21v25",
-            "actions": []
+            "actions": [
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        7,
+                        6
+                    ],
+                    "value": "I",
+                    "number": 1
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        7,
+                        7
+                    ],
+                    "value": "U",
+                    "number": 2
+                }
+            ]
         }
     ],
     "points": 0

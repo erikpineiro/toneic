@@ -80,6 +80,8 @@ export const Toneic = {
 
     startSynch: function () {
 
+        console.log("STARTED SYNCH", State.local.synchIntervalID);
+
         if (!State.local.token || !State.local.userID) {
             console.log("user_not_loggedIn_nothing_to_synch");
             return;
@@ -93,11 +95,14 @@ export const Toneic = {
         if (!State.local.synchIntervalID) {
             State.updateLocal({
                 synchIntervalID:    setInterval(function () {
+                                        console.log();
+                                        console.log("SYNCH");
+                                        console.log();
                                         ApiBridge.crosswordsSynch({
                                             toneicID: State.local.currentToneicID,
                                         });
                                     }, 4000)
-            })
+            });
         }
     },
 
@@ -118,8 +123,10 @@ function PodControls(data) {
         </span>
         <span class="timeSpan">
             <button class="play">Play</button>
-            <span class="currentTime">00:00</span>
-            <span class="totalTime">/<span>--:--</span></span>
+            <span>
+                <span class="currentTime">00:00</span>
+                <span class="totalTime">&nbsp&nbspav&nbsp&nbsp<span>--:--</span></span>
+            </span>
         </span>
         <span class="fbSpan">
             <button class="front f15">+15s</button>

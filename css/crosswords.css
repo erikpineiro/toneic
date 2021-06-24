@@ -98,7 +98,8 @@
     grid-auto-rows: minmax(35px, 45px);
     gap: 2px;
     
-    padding: 1vh; 
+    margin: 1vh 0px;
+    padding: .5vh; 
     border-radius: var(--bRMainButton);
     border: 1px solid rgba(0,0,0,.2);
     background-color: rgba(0,0,0,.1);
@@ -123,8 +124,7 @@
 
 
 .legend {
-    margin: 1vh 0px;
-    padding: 1vh;
+    padding: .5vh;
     border-radius: var(--bRMainButton);
     border: 1px solid rgba(255,255,255,.2);
     background-color: rgba(255,255,255,.5);

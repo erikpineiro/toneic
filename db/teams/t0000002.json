@@ -5,7 +5,8 @@
     "email": "er@er.er",
     "allowedUsers": [
         "u0000002",
-        "u0000001"
+        "u0000001",
+        "u0000003"
     ],
     "toneics": [
         {
@@ -141,6 +142,38 @@
                     ],
                     "value": "U",
                     "number": 4
+                }
+            ]
+        },
+        {
+            "toneicID": "t21v25",
+            "actions": [
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        4,
+                        0
+                    ],
+                    "value": "T",
+                    "number": 1
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        4,
+                        1
+                    ],
+                    "value": "Y",
+                    "number": 2
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        4,
+                        2
+                    ],
+                    "value": "R",
+                    "number": 3
                 }
             ]
         }
