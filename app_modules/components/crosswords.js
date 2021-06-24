@@ -128,7 +128,12 @@ export class Crosswords {
                 legend.querySelector(".legend img").setAttribute("src", imageSrc);    
             }
 
+            if (!description.text && !description.image) {
+                legend.querySelector(".legend .text").textContent = "Ledtrådar i podcasten";
+            }
+
             legend.querySelectorAll(".legend > *").forEach( e => e.classList.remove("invisible") );
+
                 
         }, 500);
 
@@ -139,15 +144,19 @@ class Cross {
     constructor (data) {
         this.data = data;
 
+
+        // Create words
+        this._allWords = [];
+        data.crosswords.words.forEach( word => {
+            this._allWords.push( new Word({ ...data, ...word, Cross: this }) );
+        });
+
+                
         // Get the size of the crosswords
-        let width = 0;
-        let height = 0;
-        this.data.crosswords.words.forEach( word => {
-            if (word.direction === "h") {
-                width = Math.max(width, word.origin[0] + word.length );
-            } else {
-                height = Math.max(height, word.origin[1] + word.length );
-            }
+        let width = 0, height = 0;
+        this.allWords.forEach( word => {
+            width = Math.max(width, word.dims.width);
+            height = Math.max(height, word.dims.height);
         });
 
         
@@ -178,14 +187,6 @@ class Cross {
             }
         }
 
-
-        // Create words
-        this._allWords = [];
-        data.crosswords.words.forEach( word => {
-            this._allWords.push( new Word({ ...data, ...word, Cross: this }) );
-        });
-
-        
         // Fill empty squares
         this.allCells.forEach( cell => {
             if (cell.inWords.length === 0) {
@@ -203,11 +204,6 @@ class Cross {
             }
             this.cellFromOrigin(word.origin).addNumber(index - repeats);
         });
-
-        // this.allCells.filter( c => !c.empty ).forEach( (cell, index) => {
-        //     cell.addNumber(index);
-        // });
-
 
     }
 
@@ -238,37 +234,104 @@ class Word {
 
     constructor (data) {
         this.data = data;
-
-        this.cells = [];
-
-        if (this.data.direction === "h") {
-            for (let col = 0; col < this.data.length; col++) {
-                this.cells.push(this.data.Cross.allCells.find(c => samePos(c.data.origin, [this.data.origin[0] + col, this.data.origin[1]])));
-            }
-        } else {
-            for (let row = 0; row < this.data.length; row++) {
-                this.cells.push(this.data.Cross.allCells.find(c => samePos(c.data.origin, [this.data.origin[0], this.data.origin[1] + row])));
-            }
-        }
-
-        // Mark word separations
-        console.log(data.spaces);
-        let word = this;
-        data.spaces.forEach( sp => {
-            word.cells[sp].element.classList.add(this.data.direction + "_separator");
-        });
-
     }
 
     get active () {
         return this._active || (this._active = false);
+    }
+    get dims() {
+        if (this._dims) {
+            return this._dims;
+        }
+
+        let wordClone = {...this.data};
+        wordClone.turns = this.data.turns ? [...this.data.turns] : undefined;
+        return this._dims = calculateDims(wordClone, {
+            width: this.data.origin[0],
+            height: this.data.origin[1]
+          });
+
+        function calculateDims(word, dims) {
+            const key = word.direction === "h" ? "width" : "height";
+            const index = key === "width" ? 0 : 1;
+            if (word.turns && word.turns.length) {
+                const length = word.turns[0].corner[index] - word.origin[index];
+                dims[key] += length;
+
+                word.origin = word.turns[0].corner;
+                word.direction = word.direction === "h" ? "v" : "h";
+                word.turns.splice(0, 1);
+                word.length -= length;
+                return calculateDims(word, dims);
+            } else {
+                dims[key] += word.length;
+                return dims;
+            }
+        }
+    }
+    get cells () {
+        if (this._cells) {
+            return this._cells;
+        }
+        const allCells = this.data.Cross.allCells;
+
+        let wordClone = {...this.data};
+        wordClone.turns = this.data.turns ? [...this.data.turns] : undefined; // We splice this one so we need aclone of it too
+        
+        this._cells = assignCells(wordClone);
+
+        // Mark word separations
+        // Direction depends on turns, but we can check it by looking at the position of the next cell
+        let word = this;
+        this.data.spaces.forEach( sp => {
+            const cell1 = word.cells[sp];
+            const cell2 = word.cells[sp + 1]; // Words cannot have a space at the end
+            const direction = cell1.data.origin[0] === cell2.data.origin[0] ? "v" : "h";
+            cell1.element.classList.add(direction + "_separator");
+        });
+
+
+        return this._cells;
+
+        function assignCells (word, cells = []) {
+            if (word.turns && word.turns.length) {
+                cells = [...cells, ...cellsToCell(word, word.turns[0].corner)];
+
+                word.origin = word.turns[0].corner;
+                word.direction = word.direction === "h" ? "v" : "h";
+                word.turns.splice(0, 1);
+                return assignCells(word, cells);
+            } else {
+                cells = [...cells, ...cellsToCell(word)];
+                return cells;
+            }
+        }
+        function cellsToCell (word, end = null) {
+            let cells = [];
+            const index = word.direction === "h" ? 0 : 1;
+            const length = end ? end[index] - word.origin[index] : word.length;
+            word.length -= length;
+            if (word.direction === "h") {
+                for (let col = 0; col < length; col++) {
+                    cells.push(allCells.find(c => samePos(c.data.origin, [word.origin[0] + col, word.origin[1]])));
+                }
+            } else {
+                for (let row = 0; row < length; row++) {
+                    cells.push(allCells.find(c => samePos(c.data.origin, [word.origin[0], word.origin[1] + row])));
+                }
+            }
+            return cells;
+        }
     }
     activate (boolean = true) {
 
         let currentlyActive = this.data.Cross.activeWord;
 
         console.log("Activate Word", boolean, currentlyActive, this.data.origin);
-        (currentlyActive && currentlyActive !== this) && currentlyActive.activate(false);
+
+        if (currentlyActive && currentlyActive !== this) {
+            currentlyActive.activate(false);
+        }
         
         this._active = boolean;
         let action = boolean ? "add" : "remove";
@@ -276,9 +339,28 @@ class Word {
             cell.element.classList[action]("active");
         });
 
-        this.data.main.showLegend(this.data.description);
+        if (currentlyActive !== this) {
+            this.data.main.showLegend(this.data.description);
+        }
 
     }
+
+    // activate (boolean = true) {
+
+    //     let currentlyActive = this.data.Cross.activeWord;
+
+    //     console.log("Activate Word", boolean, currentlyActive, this.data.origin);
+    //     (currentlyActive && currentlyActive !== this) && currentlyActive.activate(false);
+        
+    //     this._active = boolean;
+    //     let action = boolean ? "add" : "remove";
+    //     this.cells.forEach( cell => {
+    //         cell.element.classList[action]("active");
+    //     });
+
+    //     this.data.main.showLegend(this.data.description);
+
+    // }
     nextCell (cell) {
 
         let index = this.cells.indexOf(cell);
@@ -338,7 +420,6 @@ class Cell {
     get inWords () {
         if (this._words) return this._words;
         let words = this.data.Cross.allWords.filter( w => w.cells.some(c => samePos(this.data.origin, c.data.origin)));
-        // let words = Word.all.filter( w => w.cells.some(c => samePos(this.data.origin, c.data.origin)));
         return this._words = words;
     }
     get myCurrentWord() {

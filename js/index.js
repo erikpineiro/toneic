@@ -71,9 +71,10 @@ storage();
 
 
 // RESET TONEIC SYNCH
+// Otherwise it will think that there is already a synch going on
 State.updateLocal({
     synchIntervalID: 0,
-})
+});
 
 
 // INIT COVER
