@@ -7,7 +7,7 @@
             {
                 "origin": [6,0],
                 "direction": "h",
-                "word": "x xxx",
+                "word": "xxxx",
                 "description": {
                     "image": null,
                     "podcastTime": 0,
@@ -27,7 +27,7 @@
             {
                 "origin": [0,0],
                 "direction": "v",
-                "word": "xx xxxxx",
+                "word": "xxxxxxx",
                 "description": {
                     "image": null,
                     "podcastTime": 0,
@@ -69,7 +69,7 @@
                 "direction": "h",
                 "word": "xxxxx",
                 "description": {
-                    "image": null,
+                    "image": "image_4_5h.jpg",
                     "podcastTime": 0,
                     "text": ""
                 }
@@ -110,7 +110,7 @@
                     {"corner": [7,8]}
                 ], 
                 "direction": "v",
-                "word": "xx xxx",
+                "word": "xxxxx",
                 "description": {
                     "image": "image_7_5v.jpg",
                     "podcastTime": 0,
