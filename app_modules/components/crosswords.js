@@ -172,13 +172,28 @@ class Cross {
 
         // Create cells
         this._allCells = [];
+        let allTurns = [];
+        data.crosswords.words.filter(w => w.turns).forEach(w => {
+            allTurns = [...allTurns, ...w.turns.map((t, index) => {
+                return {
+                    origin: t.corner,
+                    direction: index % 2 === 0 ? (w.direction === "h" ? "v" : "h") : w.direction
+                };
+            })]
+        });
         for (let row = 0; row < height; row++) {
             for (let col = 0; col < width; col++) {
+                
                 let multiplier = data.crosswords.multipliers.find( m => samePos(m.origin, [col, row]));
                 multiplier = multiplier ? multiplier.factor : 1;
+
+                let turn = allTurns.find( t => samePos(t.origin, [col, row]));
+                turn = turn ? turn.direction : null;
+
                 let cell = new Cell({ 
                     origin: [col, row],
                     multiplier,
+                    turn,
                     main: this.data.main,
                     Cross: this,
                 });
@@ -386,9 +401,14 @@ class Cell {
         
         let element = document.createElement("div");
         element.classList.add("cell");
+
         if (this.data.multiplier !== 1) {
             element.classList.add(`mult${this.data.multiplier}`);
             element.classList.add(`multiplier`);
+        }
+        if (this.data.turn) {
+            element.classList.add(`turn_${this.data.turn}`);
+            // element.classList.add(`multiplier`);
         }
 
         let object = this;
