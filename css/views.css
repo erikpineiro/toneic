@@ -130,18 +130,24 @@
 
 #toneic #podControls {
     --internalPad: .5vh;
+    --cBackButton: white;
     height: 4vh;
     padding-top: var(--internalPad);
-    padding-bottom: calc(0.2vh + var(--internalPad));
+    padding-bottom: calc(2px + var(--internalPad));
     display: flex;
+    align-items: stretch;
     background-color: lightsalmon;
     border-radius: 1vh;
     margin-bottom: 1vh;
 }
 #toneic #podControls .fbSpan {
+    display: flex;
     padding: 0px;
     margin: 0px var(--internalPad);
     /* background-color: whitesmoke; */
+}
+#toneic #podControls .fbSpan > button:first-child {
+    margin-right: calc(0px + var(--internalPad));
 }
 #toneic #podControls .timeSpan {
     flex-grow: 1;
@@ -153,7 +159,6 @@
     margin: 0px var(--internalPad);
 }
 #toneic #podControls .timeSpan .play {
-    background-color: rgba(255,255,255,.8);
     flex-basis: 30%;
 }
 #toneic #podControls .timeSpan > span {
@@ -170,4 +175,5 @@
     font-size: 2vh;
     height: 100%;
     padding: 0px 1vh;
+    background-color: var(--cBackButton);
 }

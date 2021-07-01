@@ -18,6 +18,7 @@ export class Crosswords {
             <div class="cross"></div>
             <div class="keyboard"></div>
             <div class="legend">
+                <button class="close"></button>
                 <div class="image">
                     <img>
                 </div>
@@ -29,6 +30,12 @@ export class Crosswords {
         data = {...data, main: this};
         this.Cross = new Cross({ ...data });
         this.Keyboard = new Keyboard({...data});
+
+        element.querySelector("button.close").click({
+            callback: () => {
+                element.querySelector(".legend").classList.remove("visible");
+            }
+        });
 
         SubPub.subscribe({
             event: "event::crosswords:latestActions:success",
@@ -117,25 +124,28 @@ export class Crosswords {
         let legend = this.element.querySelector(".legend");
         legend.querySelectorAll(".legend > *").forEach( e => e.classList.add("invisible") );
 
-        setTimeout(() => {
+        if (description.text || description.image) {
 
-            legend.querySelector(".legend .text").textContent = "";
-            legend.querySelector(".legend img").setAttribute("src", "");
+            setTimeout(() => {
     
-            legend.querySelector(".legend .text").textContent = description.text;
-            if (description.image) {
-                let imageSrc = `./db/toneics/${State.local.currentToneicID}/${description.image}`;
-                legend.querySelector(".legend img").setAttribute("src", imageSrc);    
-            }
-
-            if (!description.text && !description.image) {
-                legend.querySelector(".legend .text").textContent = "Ledtrådar i podcasten";
-            }
-
-            legend.querySelectorAll(".legend > *").forEach( e => e.classList.remove("invisible") );
-
-                
-        }, 500);
+                legend.querySelector(".legend .text").textContent = "";
+                legend.querySelector(".legend img").setAttribute("src", "");
+        
+                legend.querySelector(".legend .text").textContent = description.text;
+                if (description.image) {
+                    let imageSrc = `./db/toneics/${State.local.currentToneicID}/${description.image}`;
+                    legend.querySelector(".legend img").setAttribute("src", imageSrc);    
+                }
+    
+                // if (!description.text && !description.image) {
+                //     legend.querySelector(".legend .text").textContent = "Ledtrådar i podcasten";
+                // }
+    
+                legend.querySelectorAll(".legend > *").forEach( e => e.classList.remove("invisible") );
+                legend.classList.add("visible");
+                        
+            }, 500);
+        }
 
     }
 }
@@ -354,28 +364,14 @@ class Word {
             cell.element.classList[action]("active");
         });
 
-        if (currentlyActive !== this) {
-            this.data.main.showLegend(this.data.description);
-        }
+        this.data.main.showLegend(this.data.description);
+
+        // if (currentlyActive !== this) {
+        //     this.data.main.showLegend(this.data.description);
+        // }
 
     }
 
-    // activate (boolean = true) {
-
-    //     let currentlyActive = this.data.Cross.activeWord;
-
-    //     console.log("Activate Word", boolean, currentlyActive, this.data.origin);
-    //     (currentlyActive && currentlyActive !== this) && currentlyActive.activate(false);
-        
-    //     this._active = boolean;
-    //     let action = boolean ? "add" : "remove";
-    //     this.cells.forEach( cell => {
-    //         cell.element.classList[action]("active");
-    //     });
-
-    //     this.data.main.showLegend(this.data.description);
-
-    // }
     nextCell (cell) {
 
         let index = this.cells.indexOf(cell);

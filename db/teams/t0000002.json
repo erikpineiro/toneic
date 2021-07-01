@@ -266,6 +266,38 @@
                     "number": 39
                 }
             ]
+        },
+        {
+            "toneicID": "t21v26",
+            "actions": [
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        2,
+                        4
+                    ],
+                    "value": "E",
+                    "number": 1
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        2,
+                        5
+                    ],
+                    "value": "R",
+                    "number": 2
+                },
+                {
+                    "kind": "letterUpdate",
+                    "origin": [
+                        2,
+                        6
+                    ],
+                    "value": "T",
+                    "number": 3
+                }
+            ]
         }
     ],
     "points": 0

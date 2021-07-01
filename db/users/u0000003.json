@@ -2,10 +2,10 @@
     "userID": "u0000003",
     "userName": "rike",
     "password": "asdasd",
-    "token": "voVugxk2LAlKF",
+    "token": "oP07wCLyg88Mq",
     "email": "lina@er.er",
-    "joinedTeamID": "t_u0000003",
-    "joinedTeamName": "t_u0000003",
+    "joinedTeamID": "t0000002",
+    "joinedTeamName": "bibas",
     "toneics": [
         {
             "toneicID": "t21v25",
@@ -14,8 +14,8 @@
         },
         {
             "toneicID": "t21v26",
-            "teamID": "t_u0000003",
-            "lastAction": 0
+            "teamID": "t0000002",
+            "lastAction": 3
         }
     ],
     "points": 0

@@ -100,9 +100,11 @@
     display: grid;
     border-left: 1px solid var(--cBorder);
     border-bottom: 1px solid var(--cBorder);
-
 }
 
+.crosswords {
+    position: relative;
+}
 
 .keyboard {
     display: grid;
@@ -136,16 +138,23 @@
 
 
 .legend {
-    padding: .5vh;
-    border-radius: var(--bRMainButton);
-    border: 1px solid rgba(255,255,255,.2);
+    --border: .5vh;
+    /* border-radius: var(--bRMainButton); */
+    border: var(--border) solid rgba(255,255,255,.9);
     background-color: rgba(255,255,255,.5);
 
     text-align: center;
     font-family: var(--ft2);
 
-    display: flex;
+    display: none;
     flex-direction: column;
+
+    position: absolute;
+    width: calc(100% - 2 * var(--border) + 2px);
+    top: 0px; left: 0px;
+}
+.legend.visible {
+    display: flex;
 }
 .legend > div {
     /* margin-top: .5vh */
@@ -162,4 +171,17 @@
 }
 .legend .invisible {
     opacity: 0;
+}
+.legend button.close {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 3vh; height: 3vh;
+    border-radius: 50%;
+    background-color: white;
+
+    background-image: url(../images/close.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 60%;
 }
