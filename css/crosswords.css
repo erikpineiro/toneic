@@ -176,12 +176,12 @@
     position: absolute;
     top: 4px;
     right: 4px;
-    width: 3vh; height: 3vh;
+    width: 30px; height: 30px;
     border-radius: 50%;
     background-color: white;
 
     background-image: url(../images/close.png);
     background-position: center;
     background-repeat: no-repeat;
-    background-size: 60%;
+    background-size: 40%;
 }
