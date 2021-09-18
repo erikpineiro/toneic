@@ -121,6 +121,8 @@ export class Crosswords {
     }
     showLegend (description) {
 
+        console.log("Show Legend", description, this.element);
+
         let legend = this.element.querySelector(".legend");
         legend.querySelectorAll(".legend > *").forEach( e => e.classList.add("invisible") );
 
@@ -364,7 +366,7 @@ class Word {
             cell.element.classList[action]("active");
         });
 
-        this.data.main.showLegend(this.data.description);
+        boolean && this.data.main.showLegend(this.data.description);
 
         // if (currentlyActive !== this) {
         //     this.data.main.showLegend(this.data.description);

@@ -1,0 +1,175 @@
+{
+    "podcast": "podCastName",
+    "title": "Toneic Title",
+    "guests": ["Charles"],
+    "crosswords": {
+        "words": [
+            {
+                "origin": [0,0],
+                "direction": "h",
+                "word": "xxxxxxxxxx",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [0, 0],
+                "direction": "v",
+                "word": "xxxxxxxxxx",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [2,0],
+                "direction": "v",
+                "word": "xxxxxxxxxx",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [4,0],
+                "direction": "v",
+                "word": "xxxxxxxxxx",
+                "description": {
+                    "image": "image_4_0v.jpg",
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [7,0],
+                "direction": "v",
+                "word": "xxx",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [9,0],
+                "direction": "v",
+                "word": "xxxxx",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [0,2],
+                "direction": "h",
+                "word": "xxx",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [6,3],
+                "direction": "v",
+                "word": "xxxxx",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [0,4],
+                "direction": "h",
+                "word": "xxxxxxxxxx",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [8,4],
+                "direction": "v",
+                "word": "xxx",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [0,6],
+                "direction": "h",
+                "word": "xxxxx",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [8,6],
+                "direction": "h",
+                "word": "xx",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [9,6],
+                "direction": "v",
+                "word": "xxxx",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [4,7],
+                "direction": "h",
+                "word": "xxxx",
+                "description": {
+                    "image": "image_4_7h.jpg",
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [0,8],
+                "turns": [
+                    {"corner": [2,8]}
+                ], 
+                "direction": "h",
+                "word": "xxxx",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            },
+            {
+                "origin": [4,9],
+                "direction": "h",
+                "word": "xxxxxx",
+                "description": {
+                    "image": null,
+                    "podcastTime": 0,
+                    "text": ""
+                }
+            }
+
+        ],
+        "multipliers": [
+        ]
+    }
+}
